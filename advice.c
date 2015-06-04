@@ -15,6 +15,7 @@ int advice_status_hints = 1;
 int advice_status_u_option = 1;
 int advice_status_ahead_behind_warning = 1;
 int advice_commit_before_merge = 1;
+int advice_commit_msg = 1;
 int advice_reset_quiet_warning = 1;
 int advice_resolve_conflict = 1;
 int advice_sequencer_in_use = 1;
@@ -77,6 +78,7 @@ static struct {
 	{ "statusUoption", &advice_status_u_option },
 	{ "statusAheadBehindWarning", &advice_status_ahead_behind_warning },
 	{ "commitBeforeMerge", &advice_commit_before_merge },
+	{ "commitMsg", &advice_commit_msg },
 	{ "resetQuiet", &advice_reset_quiet_warning },
 	{ "resolveConflict", &advice_resolve_conflict },
 	{ "sequencerInUse", &advice_sequencer_in_use },

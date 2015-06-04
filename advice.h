@@ -15,6 +15,7 @@ extern int advice_status_hints;
 extern int advice_status_u_option;
 extern int advice_status_ahead_behind_warning;
 extern int advice_commit_before_merge;
+extern int advice_commit_msg;
 extern int advice_reset_quiet_warning;
 extern int advice_resolve_conflict;
 extern int advice_sequencer_in_use;

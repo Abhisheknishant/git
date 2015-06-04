@@ -848,39 +848,44 @@ static int prepare_to_commit(const char *index_file, const char *prefix,
 			if (cleanup_mode == COMMIT_MSG_CLEANUP_SCISSORS &&
 				!merge_contains_scissors)
 				wt_status_add_cut_line(s->fp);
-			status_printf_ln(s, GIT_COLOR_NORMAL,
-			    whence == FROM_MERGE
-				? _("\n"
-					"It looks like you may be committing a merge.\n"
-					"If this is not correct, please remove the file\n"
-					"	%s\n"
-					"and try again.\n")
-				: _("\n"
-					"It looks like you may be committing a cherry-pick.\n"
-					"If this is not correct, please remove the file\n"
-					"	%s\n"
-					"and try again.\n"),
-				whence == FROM_MERGE ?
-					git_path_merge_head(the_repository) :
-					git_path_cherry_pick_head(the_repository));
+			if (advice_commit_msg)
+				status_printf_ln(s, GIT_COLOR_NORMAL,
+				    whence == FROM_MERGE
+					? _("\n"
+						"It looks like you may be committing a merge.\n"
+						"If this is not correct, please remove the file\n"
+						"	%s\n"
+						"and try again.\n")
+					: _("\n"
+						"It looks like you may be committing a cherry-pick.\n"
+						"If this is not correct, please remove the file\n"
+						"	%s\n"
+						"and try again.\n"),
+					whence == FROM_MERGE ?
+						git_path_merge_head(the_repository) :
+						git_path_cherry_pick_head(the_repository));
 		}
 
 		fprintf(s->fp, "\n");
-		if (cleanup_mode == COMMIT_MSG_CLEANUP_ALL)
-			status_printf(s, GIT_COLOR_NORMAL,
-				_("Please enter the commit message for your changes."
-				  " Lines starting\nwith '%c' will be ignored, and an empty"
-				  " message aborts the commit.\n"), comment_line_char);
-		else if (cleanup_mode == COMMIT_MSG_CLEANUP_SCISSORS) {
+		if (cleanup_mode == COMMIT_MSG_CLEANUP_ALL) {
+			if (advice_commit_msg)
+				status_printf(s, GIT_COLOR_NORMAL,
+					_("Please enter the commit message for your changes."
+					  " Lines starting\nwith '%c' will be ignored, and an empty"
+					  " message aborts the commit.\n"), comment_line_char);
+		} else if (cleanup_mode == COMMIT_MSG_CLEANUP_SCISSORS) {
 			if (whence == FROM_COMMIT && !merge_contains_scissors)
 				wt_status_add_cut_line(s->fp);
-		} else /* COMMIT_MSG_CLEANUP_SPACE, that is. */
-			status_printf(s, GIT_COLOR_NORMAL,
-				_("Please enter the commit message for your changes."
-				  " Lines starting\n"
-				  "with '%c' will be kept; you may remove them"
-				  " yourself if you want to.\n"
-				  "An empty message aborts the commit.\n"), comment_line_char);
+		} else {
+			/* COMMIT_MSG_CLEANUP_SPACE, that is. */
+			if (advice_commit_msg)
+				status_printf(s, GIT_COLOR_NORMAL,
+					_("Please enter the commit message for your changes."
+					  " Lines starting\n"
+					  "with '%c' will be kept; you may remove them"
+					  " yourself if you want to.\n"
+					  "An empty message aborts the commit.\n"), comment_line_char);
+		}
 
 		/*
 		 * These should never fail because they come from our own
@@ -895,7 +900,7 @@ static int prepare_to_commit(const char *index_file, const char *prefix,
 			status_printf_ln(s, GIT_COLOR_NORMAL,
 				_("%s"
 				"Author:    %.*s <%.*s>"),
-				ident_shown++ ? "" : "\n",
+				ident_shown++ || !advice_commit_msg ? "" : "\n",
 				(int)(ai.name_end - ai.name_begin), ai.name_begin,
 				(int)(ai.mail_end - ai.mail_begin), ai.mail_begin);
 
@@ -903,18 +908,19 @@ static int prepare_to_commit(const char *index_file, const char *prefix,
 			status_printf_ln(s, GIT_COLOR_NORMAL,
 				_("%s"
 				"Date:      %s"),
-				ident_shown++ ? "" : "\n",
+				ident_shown++ || !advice_commit_msg ? "" : "\n",
 				show_ident_date(&ai, DATE_MODE(NORMAL)));
 
 		if (!committer_ident_sufficiently_given())
 			status_printf_ln(s, GIT_COLOR_NORMAL,
 				_("%s"
 				"Committer: %.*s <%.*s>"),
-				ident_shown++ ? "" : "\n",
+				ident_shown++ || !advice_commit_msg ? "" : "\n",
 				(int)(ci.name_end - ci.name_begin), ci.name_begin,
 				(int)(ci.mail_end - ci.mail_begin), ci.mail_begin);
 
-		status_printf_ln(s, GIT_COLOR_NORMAL, "%s", ""); /* Add new line for clarity */
+		if (ident_shown || advice_commit_msg)
+			status_printf_ln(s, GIT_COLOR_NORMAL, "%s", ""); /* Add new line for clarity */
 
 		saved_color_setting = s->use_color;
 		s->use_color = 0;

@@ -61,6 +61,8 @@ advice.*::
 	commitBeforeMerge::
 		Advice shown when linkgit:git-merge[1] refuses to
 		merge to avoid overwriting local changes.
+	commitMsg::
+		Advices shown in the commit message template.
 	resetQuiet::
 		Advice to consider using the `--quiet` option to linkgit:git-reset[1]
 		when the command takes more than 2 seconds to enumerate unstaged
