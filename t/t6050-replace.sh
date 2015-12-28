@@ -370,10 +370,12 @@ test_expect_success 'setup fake editors' '
 test_expect_success '--edit with and without already replaced object' '
 	test_must_fail env GIT_EDITOR=./fakeeditor git replace --edit "$PARA3" &&
 	GIT_EDITOR=./fakeeditor git replace --force --edit "$PARA3" &&
+	test_path_is_missing .git/REPLACE_EDITOBJ &&
 	git replace -l | grep "$PARA3" &&
 	git cat-file commit "$PARA3" | grep "A fake Thor" &&
 	git replace -d "$PARA3" &&
 	GIT_EDITOR=./fakeeditor git replace --edit "$PARA3" &&
+	test_path_is_missing .git/REPLACE_EDITOBJ &&
 	git replace -l | grep "$PARA3" &&
 	git cat-file commit "$PARA3" | grep "A fake Thor"
 '
@@ -381,8 +383,11 @@ test_expect_success '--edit with and without already replaced object' '
 test_expect_success '--edit and change nothing or command failed' '
 	git replace -d "$PARA3" &&
 	test_must_fail env GIT_EDITOR=true git replace --edit "$PARA3" &&
+	test_path_is_file .git/REPLACE_EDITOBJ &&
 	test_must_fail env GIT_EDITOR="./failingfakeeditor" git replace --edit "$PARA3" &&
+	test_path_is_file .git/REPLACE_EDITOBJ &&
 	GIT_EDITOR=./fakeeditor git replace --edit "$PARA3" &&
+	test_path_is_missing .git/REPLACE_EDITOBJ &&
 	git replace -l | grep "$PARA3" &&
 	git cat-file commit "$PARA3" | grep "A fake Thor"
 '

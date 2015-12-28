@@ -317,6 +317,7 @@ static int edit_and_replace(const char *object_ref, int force, int raw)
 	enum object_type type;
 	struct object_id old_oid, new_oid, prev;
 	struct strbuf ref = STRBUF_INIT;
+	int ret;
 
 	if (get_oid(object_ref, &old_oid) < 0)
 		return error(_("not a valid object name: '%s'"), object_ref);
@@ -345,12 +346,15 @@ static int edit_and_replace(const char *object_ref, int force, int raw)
 		free(tmpfile);
 		return -1;
 	}
-	free(tmpfile);
 
 	if (oideq(&old_oid, &new_oid))
 		return error(_("new object is the same as the old one: '%s'"), oid_to_hex(&old_oid));
 
-	return replace_object_oid(object_ref, &old_oid, "replacement", &new_oid, force);
+	ret = replace_object_oid(object_ref, &old_oid, "replacement", &new_oid, force);
+	if (!ret)
+		unlink_or_warn(tmpfile);
+	free(tmpfile);
+	return ret;
 }
 
 static int replace_parents(struct strbuf *buf, int argc, const char **argv)
