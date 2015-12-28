@@ -595,6 +595,7 @@ static int edit_branch_description(const char *branch_name)
 
 	strbuf_addf(&name, "branch.%s.description", branch_name);
 	git_config_set(name.buf, buf.len ? buf.buf : NULL);
+	unlink_or_warn(edit_description());
 	strbuf_release(&name);
 	strbuf_release(&buf);
 

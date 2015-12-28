@@ -1252,10 +1252,12 @@ test_expect_success 'use --edit-description' '
 		echo "New contents" >"$1"
 	EOF
 	EDITOR=./editor git branch --edit-description &&
-		write_script editor <<-\EOF &&
+	test_path_is_missing .git/BRANCH_DESCRIPTION &&
+	write_script editor <<-\EOF &&
 		git stripspace -s <"$1" >"EDITOR_OUTPUT"
 	EOF
 	EDITOR=./editor git branch --edit-description &&
+	test_path_is_missing .git/BRANCH_DESCRIPTION &&
 	echo "New contents" >expect &&
 	test_cmp expect EDITOR_OUTPUT
 '
