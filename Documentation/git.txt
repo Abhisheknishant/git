@@ -685,6 +685,12 @@ Unsetting the variable, or setting it to empty, "0" or
 	starting with "PACK" (but see `GIT_TRACE_PACKFILE` below).
 	See `GIT_TRACE` for available trace output options.
 
+`GIT_TRACE_PACKET_STAT`::
+	Enables tracing the number and size of packets coming in or
+	out of a given program.  Uses separate counters for
+	negotiation and pack transfer.
+	See `GIT_TRACE` for available trace output options.
+
 `GIT_TRACE_PACKFILE`::
 	Enables tracing of packfiles sent or received by a
 	given program. Unlike other trace output, this trace is

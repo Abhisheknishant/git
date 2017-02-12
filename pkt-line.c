@@ -6,6 +6,11 @@ char packet_buffer[LARGE_PACKET_MAX];
 static const char *packet_trace_prefix = "git";
 static struct trace_key trace_packet = TRACE_KEY_INIT(PACKET);
 static struct trace_key trace_pack = TRACE_KEY_INIT(PACKFILE);
+static struct trace_key trace_packet_stat = TRACE_KEY_INIT(PACKET_STAT);
+
+static unsigned long int in_bytes, out_bytes, in_pack_bytes, out_pack_bytes;
+static unsigned long int in_count, out_count, in_pack_count, out_pack_count;
+static int trace_packet_stat_atexit_registered;
 
 void packet_trace_identity(const char *prog)
 {
@@ -31,19 +36,51 @@ static int packet_trace_pack(const char *buf, unsigned int len, int sideband)
 	}
 }
 
+static void print_packet_stat_atexit(void)
+{
+	trace_printf_key(&trace_packet_stat,
+			"ic: %ld ib: %ld oc: %ld ob: %ld ipc: %ld ipb: %ld opc: %ld opb: %ld\n",
+			in_count, in_bytes, out_count, out_bytes,
+			in_pack_count, in_pack_bytes,
+			out_pack_count, out_pack_bytes);
+}
+
 static void packet_trace(const char *buf, unsigned int len, int write)
 {
 	int i;
 	struct strbuf out;
 	static int in_pack, sideband;
 
-	if (!trace_want(&trace_packet) && !trace_want(&trace_pack))
+	if (!trace_want(&trace_packet) && !trace_want(&trace_pack) &&
+	    !trace_want(&trace_packet_stat))
 		return;
 
+	if (trace_want(&trace_packet_stat)) {
+		if (!trace_packet_stat_atexit_registered) {
+			atexit(print_packet_stat_atexit);
+			trace_packet_stat_atexit_registered = 1;
+		}
+	}
+
 	if (in_pack) {
+		if (write) {
+			out_pack_bytes += len;
+			out_pack_count++;
+		} else {
+			in_pack_bytes += len;
+			in_pack_count++;
+		}
 		if (packet_trace_pack(buf, len, sideband))
 			return;
 	} else if (starts_with(buf, "PACK") || starts_with(buf, "\1PACK")) {
+		if (write) {
+			out_pack_bytes += len;
+			out_pack_count++;
+		} else {
+			in_pack_bytes += len;
+			in_pack_count++;
+		}
+
 		in_pack = 1;
 		sideband = *buf == '\1';
 		packet_trace_pack(buf, len, sideband);
@@ -54,6 +91,14 @@ static void packet_trace(const char *buf, unsigned int len, int write)
 		 */
 		buf = "PACK ...";
 		len = strlen(buf);
+	} else {
+		if (write) {
+			out_bytes += len;
+			out_count++;
+		} else {
+			in_bytes += len;
+			in_count++;
+		}
 	}
 
 	if (!trace_want(&trace_packet))
