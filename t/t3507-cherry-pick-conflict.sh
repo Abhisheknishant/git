@@ -482,14 +482,14 @@ test_expect_success 'commit after failed cherry-pick adds -s at the right place'
 	pristine_detach initial &&
 	test_must_fail git cherry-pick picked &&
 
-	git commit -a -s &&
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit -a -s &&
 
 	# Do S-o-b and Conflicts appear in the right order?
 	cat <<-\EOF >expect &&
 	Signed-off-by: C O Mitter <committer@example.com>
 	# Conflicts:
 	EOF
-	grep -e "^# Conflicts:" -e '^Signed-off-by' .git/COMMIT_EDITMSG >actual &&
+	grep -e "^# Conflicts:" -e '^Signed-off-by' .git/commit_editmsg_copy >actual &&
 	test_cmp expect actual &&
 
 	cat <<-\EOF >expected &&
@@ -511,14 +511,14 @@ test_expect_success 'commit --amend -s places the sign-off at the right place' '
 	sed -e "/^# Conflicts:/,\$s/^# *//" .git/MERGE_MSG+ >.git/MERGE_MSG &&
 
 	git commit -a &&
-	git commit --amend -s &&
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit --amend -s &&
 
 	# Do S-o-b and Conflicts appear in the right order?
 	cat <<-\EOF >expect &&
 	Signed-off-by: C O Mitter <committer@example.com>
 	Conflicts:
 	EOF
-	grep -e "^Conflicts:" -e '^Signed-off-by' .git/COMMIT_EDITMSG >actual &&
+	grep -e "^Conflicts:" -e '^Signed-off-by' .git/commit_editmsg_copy >actual &&
 	test_cmp expect actual
 '
 

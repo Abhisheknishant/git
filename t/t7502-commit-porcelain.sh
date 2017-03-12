@@ -287,8 +287,8 @@ test_expect_success 'cleanup commit messages (strip option,-F,-e)' '
 
 	echo >>negative &&
 	test_write_lines "" "sample" "" >text &&
-	git commit -e -F text -a &&
-	head -n 4 .git/COMMIT_EDITMSG >actual
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit -e -F text -a &&
+	head -n 4 .git/commit_editmsg_copy >actual
 '
 
 echo "sample
@@ -371,17 +371,17 @@ test_expect_success 'cleanup commit message (whitespace config, -m)' '
 
 test_expect_success 'message shows author when it is not equal to committer' '
 	echo >>negative &&
-	git commit -e -m "sample" -a &&
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit -e -m "sample" -a &&
 	test_i18ngrep \
 	  "^# Author: *A U Thor <author@example.com>\$" \
-	  .git/COMMIT_EDITMSG
+	  .git/commit_editmsg_copy
 '
 
 test_expect_success 'message shows date when it is explicitly set' '
-	git commit --allow-empty -e -m foo --date="2010-01-02T03:04:05" &&
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit --allow-empty -e -m foo --date="2010-01-02T03:04:05" &&
 	test_i18ngrep \
 	  "^# Date: *Sat Jan 2 03:04:05 2010 +0000" \
-	  .git/COMMIT_EDITMSG
+	  .git/commit_editmsg_copy
 '
 
 test_expect_success AUTOIDENT 'message shows committer when it is automatic' '
@@ -390,11 +390,11 @@ test_expect_success AUTOIDENT 'message shows committer when it is automatic' '
 	(
 		sane_unset GIT_COMMITTER_EMAIL &&
 		sane_unset GIT_COMMITTER_NAME &&
-		git commit -e -m "sample" -a
+		GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit -e -m "sample" -a
 	) &&
 	# the ident is calculated from the system, so we cannot
 	# check the actual value, only that it is there
-	test_i18ngrep "^# Committer: " .git/COMMIT_EDITMSG
+	test_i18ngrep "^# Committer: " .git/commit_editmsg_copy
 '
 
 write_script .git/FAKE_EDITOR <<EOF
@@ -499,14 +499,14 @@ test_expect_success 'A single-liner subject with a token plus colon is not a foo
 '
 
 test_expect_success 'commit -s places sob on third line after two empty lines' '
-	git commit -s --allow-empty --allow-empty-message &&
+	GIT_EDITOR="cat >.git/commit_editmsg_copy" git commit -s --allow-empty --allow-empty-message &&
 	cat <<-EOF >expect &&
 
 
 	Signed-off-by: $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL>
 
 	EOF
-	sed -e "/^#/d" -e "s/^:.*//" .git/COMMIT_EDITMSG >actual &&
+	sed -e "/^#/d" -e "s/^:.*//" .git/commit_editmsg_copy >actual &&
 	test_cmp expect actual
 '
 
@@ -516,6 +516,7 @@ mv "$1" "$1.orig"
 	echo message
 	cat "$1.orig"
 ) >"$1"
+cp "$1" .git/commit_editmsg_copy
 EOF
 
 echo '## Custom template' >template
@@ -526,9 +527,9 @@ try_commit () {
 	GIT_EDITOR=.git/FAKE_EDITOR git commit -a $* $use_template &&
 	case "$use_template" in
 	'')
-		test_i18ngrep ! "^## Custom template" .git/COMMIT_EDITMSG ;;
+		test_i18ngrep ! "^## Custom template" .git/commit_editmsg_copy ;;
 	*)
-		test_i18ngrep "^## Custom template" .git/COMMIT_EDITMSG ;;
+		test_i18ngrep "^## Custom template" .git/commit_editmsg_copy ;;
 	esac
 }
 
@@ -536,53 +537,53 @@ try_commit_status_combo () {
 
 	test_expect_success 'commit' '
 		try_commit "" &&
-		test_i18ngrep "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --status' '
 		try_commit --status &&
-		test_i18ngrep "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --no-status' '
 		try_commit --no-status &&
-		test_i18ngrep ! "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep ! "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit with commit.status = yes' '
 		test_config commit.status yes &&
 		try_commit "" &&
-		test_i18ngrep "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit with commit.status = no' '
 		test_config commit.status no &&
 		try_commit "" &&
-		test_i18ngrep ! "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep ! "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --status with commit.status = yes' '
 		test_config commit.status yes &&
 		try_commit --status &&
-		test_i18ngrep "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --no-status with commit.status = yes' '
 		test_config commit.status yes &&
 		try_commit --no-status &&
-		test_i18ngrep ! "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep ! "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --status with commit.status = no' '
 		test_config commit.status no &&
 		try_commit --status &&
-		test_i18ngrep "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 	test_expect_success 'commit --no-status with commit.status = no' '
 		test_config commit.status no &&
 		try_commit --no-status &&
-		test_i18ngrep ! "^# Changes to be committed:" .git/COMMIT_EDITMSG
+		test_i18ngrep ! "^# Changes to be committed:" .git/commit_editmsg_copy
 	'
 
 }
@@ -596,13 +597,13 @@ try_commit_status_combo
 test_expect_success 'commit --status with custom comment character' '
 	test_config core.commentchar ";" &&
 	try_commit --status &&
-	test_i18ngrep "^; Changes to be committed:" .git/COMMIT_EDITMSG
+	test_i18ngrep "^; Changes to be committed:" .git/commit_editmsg_copy
 '
 
 test_expect_success 'switch core.commentchar' '
 	test_commit "#foo" foo &&
 	GIT_EDITOR=.git/FAKE_EDITOR git -c core.commentChar=auto commit --amend &&
-	test_i18ngrep "^; Changes to be committed:" .git/COMMIT_EDITMSG
+	test_i18ngrep "^; Changes to be committed:" .git/commit_editmsg_copy
 '
 
 test_expect_success 'switch core.commentchar but out of options' '
