@@ -22,7 +22,7 @@ SYNOPSIS
 'git branch' (-m | -M) [<oldbranch>] <newbranch>
 'git branch' (-c | -C) [<oldbranch>] <newbranch>
 'git branch' (-d | -D) [-r] <branchname>...
-'git branch' --edit-description [<branchname>]
+'git branch' (--edit-description | --show-description) [<branchname>]
 
 DESCRIPTION
 -----------
@@ -241,6 +241,10 @@ start-point is either a local or remote-tracking branch.
 	for, to be used by various other commands (e.g. `format-patch`,
 	`request-pull`, and `merge` (if enabled)). Multi-line explanations
 	may be used.
+
+--show-description::
+	Show the description of the branch previously set using
+	`--edit-description`.
 
 --contains [<commit>]::
 	Only list branches which contain the specified commit (HEAD
