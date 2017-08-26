@@ -163,6 +163,73 @@ static const char *find_funcname_matching_regexp(xdemitconf_t *xecfg, const char
 	}
 }
 
+/* TODO: move it to compat/memrmem.c */
+static void *memrmem(const void *haystack, size_t haystacklen,
+		     const void *needle, size_t needlelen)
+{
+	const unsigned char *p, *h = haystack;
+
+	if (haystacklen < needlelen)
+		return NULL;
+	if (needlelen == 0)
+		return (void*)haystack;
+
+	for (p = h + haystacklen - needlelen; h <= p; p--)
+		if (!memcmp(p, needle, needlelen))
+			return (void*)p;
+
+	return NULL;
+}
+
+static long find_previous_func_end(nth_line_fn_t nth_line_cb, void *cb_data,
+				   long anchor, long funcname_line,
+				   const char *endstr)
+{
+	long line = funcname_line;
+	size_t endlen = strlen(endstr);
+	const char *start = nth_line_cb(cb_data, anchor);
+	const char *p = nth_line_cb(cb_data, funcname_line);
+
+	while (start <= p) {
+		p = memrmem(start, p - start, endstr, endlen);
+		if (p) {
+			int only_ws_to_left = 1;
+			p--;
+			while (start <= p && *p != '\n') {
+				if (!isspace(*p)) {
+					only_ws_to_left = 0;
+					break;
+				}
+				p--;
+			}
+			if (!only_ws_to_left)
+				continue;
+
+			if (*p == '\n')
+				p++;
+
+			/* Which line is it? */
+			while (p < nth_line_cb(cb_data, line))
+				line--;
+			/*
+			 * line now refers to the end of the previous
+			 * function; we need the line after that.
+			 */
+			line++;
+			break;
+		} else {
+			/*
+			 * At the start of the file or at the end of the
+			 * previous line range.
+			 */
+			line = anchor;
+			break;
+		}
+	}
+
+	return line;
+}
+
 static const char *parse_range_funcname(
 	const char *arg, nth_line_fn_t nth_line_cb,
 	void *cb_data, long lines, long anchor, long *begin, long *end,
@@ -236,6 +303,41 @@ static const char *parse_range_funcname(
 	regfree(&regexp);
 	free(xecfg);
 	free(pattern);
+
+	if (drv) {
+		char *endstr = NULL;
+
+		if (!strcmp(drv->name, "cpp") ||
+		    !strcmp(drv->name, "csharp") ||
+		    !strcmp(drv->name, "golang") ||
+		    !strcmp(drv->name, "java") ||
+		    !strcmp(drv->name, "objc") ||
+		    !strcmp(drv->name, "perl"))
+			endstr = "}";
+		else if (!strcmp(drv->name, "ruby"))
+			endstr = "end";
+		else if (!strcmp(drv->name, "pascal"))
+			/*
+			 * Technically it's 'end;' or 'end.', but in the way
+			 * find_previous_func_end() works this ought to work
+			 * well enough in practice, and I sure won't turn
+			 * this into a regex.
+			 */
+			endstr = "end";
+		else if (!strcmp(drv->name, "python"))
+			/*
+			 * What can we do with Python, where the
+			 * syntactically relevant indendation marks the end
+			 * of functions?
+			 */
+			;
+		if (endstr) {
+			*begin = find_previous_func_end(nth_line_cb, cb_data,
+					       anchor, *begin, endstr);
+			*end = find_previous_func_end(nth_line_cb, cb_data,
+					       *begin, *end, endstr);
+		}
+	}
 
 	/* compensate for 1-based numbering */
 	(*begin)++;
