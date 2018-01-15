@@ -101,7 +101,8 @@ OPTIONS
 
 --error-unmatch::
 	If any <file> does not appear in the index, treat this as an
-	error (return 1).
+	error (return 1).  Note that without any <file> given
+	`--error-unmatch` has no effect.
 
 --with-tree=<tree-ish>::
 	When using --error-unmatch to expand the user supplied
