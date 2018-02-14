@@ -2614,34 +2614,16 @@ _git_remote ()
 	fi
 
 	case "$subcommand,$cur" in
-	add,--*)
-		__gitcomp_builtin remote_add
+	*,--*)
+		__gitcomp_builtin remote_$subcommand
 		;;
 	add,*)
-		;;
-	set-head,--*)
-		__gitcomp_builtin remote_set-head
-		;;
-	set-branches,--*)
-		__gitcomp_builtin remote_set-branches
 		;;
 	set-head,*|set-branches,*)
 		__git_complete_remote_or_refspec
 		;;
-	update,--*)
-		__gitcomp_builtin remote_update
-		;;
 	update,*)
 		__gitcomp "$(__git_remotes) $(__git_get_config_variables "remotes")"
-		;;
-	set-url,--*)
-		__gitcomp_builtin remote_set-url
-		;;
-	get-url,--*)
-		__gitcomp_builtin remote_get-url
-		;;
-	prune,--*)
-		__gitcomp_builtin remote_prune
 		;;
 	*)
 		__gitcomp_nl "$(__git_remotes)"
