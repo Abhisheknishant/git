@@ -10,8 +10,9 @@ SYNOPSIS
 --------
 [verse]
 'git merge-file' [-L <current-name> [-L <base-name> [-L <other-name>]]]
-	[--ours|--theirs|--union] [-p|--stdout] [-q|--quiet] [--marker-size=<n>]
-	[--[no-]diff3] <current-file> <base-file> <other-file>
+	       [--ours|--theirs|--union] [-p|--stdout] [-q|--quiet]
+	       [--marker-size=<n>] [--[no-]diff3]
+	       <current-file> <base-file> <other-file>
 
 
 DESCRIPTION
