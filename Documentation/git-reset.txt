@@ -9,9 +9,11 @@ SYNOPSIS
 --------
 [verse]
 'git reset' [-q] [<tree-ish>] [--] <pathspec>...
-'git reset' [-q] [--pathspec-from-file=<file> [--pathspec-file-nul]] [<tree-ish>]
+'git reset' [-q] [--pathspec-from-file=<file> [--pathspec-file-nul]]
+	  [<tree-ish>]
 'git reset' (--patch | -p) [<tree-ish>] [--] [<pathspec>...]
-'git reset' [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
+'git reset' [--soft | --mixed [-N] | --hard | --merge | --keep] [-q]
+	  [<commit>]
 
 DESCRIPTION
 -----------
