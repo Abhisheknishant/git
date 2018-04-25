@@ -9,10 +9,11 @@ SYNOPSIS
 --------
 [verse]
 'git for-each-ref' [--count=<count>] [--shell|--perl|--python|--tcl]
-		   [(--sort=<key>)...] [--format=<format>] [<pattern>...]
-		   [--points-at=<object>]
-		   (--merged[=<object>] | --no-merged[=<object>])
-		   [--contains[=<object>]] [--no-contains[=<object>]]
+		 [(--sort=<key>)...] [--format=<format>]
+		 [--points-at=<object>]
+		 (--merged[=<object>] | --no-merged[=<object>])
+		 [--contains[=<object>]] [--no-contains[=<object>]]
+		 [<pattern>...]
 
 DESCRIPTION
 -----------
