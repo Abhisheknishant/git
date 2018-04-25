@@ -9,7 +9,8 @@ git-gc - Cleanup unnecessary files and optimize the local repository
 SYNOPSIS
 --------
 [verse]
-'git gc' [--aggressive] [--auto] [--quiet] [--prune=<date> | --no-prune] [--force] [--keep-largest-pack]
+'git gc' [--aggressive] [--auto] [--quiet] [--prune=<date> | --no-prune]
+       [--force] [--keep-largest-pack]
 
 DESCRIPTION
 -----------
