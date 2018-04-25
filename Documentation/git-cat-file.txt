@@ -9,8 +9,11 @@ git-cat-file - Provide content or type and size information for repository objec
 SYNOPSIS
 --------
 [verse]
-'git cat-file' (-t [--allow-unknown-type]| -s [--allow-unknown-type]| -e | -p | <type> | --textconv | --filters ) [--path=<path>] <object>
-'git cat-file' (--batch | --batch-check) [ --textconv | --filters ] [--follow-symlinks]
+'git cat-file' (-t [--allow-unknown-type] | -s [--allow-unknown-type] |
+	     -e | -p | <type> | --textconv | --filters ) [--path=<path>]
+	     <object>
+'git cat-file' (--batch | --batch-check) [ --textconv | --filters ]
+	     [--follow-symlinks]
 
 DESCRIPTION
 -----------
