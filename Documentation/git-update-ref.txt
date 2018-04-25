@@ -8,7 +8,10 @@ git-update-ref - Update the object name stored in a ref safely
 SYNOPSIS
 --------
 [verse]
-'git update-ref' [-m <reason>] [--no-deref] (-d <ref> [<oldvalue>] | [--create-reflog] <ref> <newvalue> [<oldvalue>] | --stdin [-z])
+'git update-ref' [-m <reason>] [--no-deref]
+	       (-d <ref> [<oldvalue>] |
+	        [--create-reflog] <ref> <newvalue> [<oldvalue>] |
+		--stdin [-z])
 
 DESCRIPTION
 -----------
