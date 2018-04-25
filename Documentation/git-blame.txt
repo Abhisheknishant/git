@@ -8,11 +8,12 @@ git-blame - Show what revision and author last modified each line of a file
 SYNOPSIS
 --------
 [verse]
-'git blame' [-c] [-b] [-l] [--root] [-t] [-f] [-n] [-s] [-e] [-p] [-w] [--incremental]
-	    [-L <range>] [-S <revs-file>] [-M] [-C] [-C] [-C] [--since=<date>]
-	    [--ignore-rev <rev>] [--ignore-revs-file <file>]
-	    [--progress] [--abbrev=<n>] [<rev> | --contents <file> | --reverse <rev>..<rev>]
-	    [--] <file>
+'git blame' [-c] [-b] [-l] [--root] [-t] [-f] [-n] [-s] [-e] [-p] [-w]
+	  [-L <range>] [-S <revs-file>] [-M] [-C] [-C] [-C]
+	  [--ignore-rev <rev>] [--ignore-revs-file <file>]
+	  [--since=<date>] [--progress] [--abbrev=<n>] [--incremental]
+	  [<rev> | --contents <file> | --reverse <rev>..<rev>] [--]
+	  <file>
 
 DESCRIPTION
 -----------
