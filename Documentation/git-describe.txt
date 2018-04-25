@@ -8,8 +8,10 @@ git-describe - Give an object a human readable name based on an available ref
 SYNOPSIS
 --------
 [verse]
-'git describe' [--all] [--tags] [--contains] [--abbrev=<n>] [<commit-ish>...]
-'git describe' [--all] [--tags] [--contains] [--abbrev=<n>] --dirty[=<mark>]
+'git describe' [--all] [--tags] [--contains] [--abbrev=<n>]
+	     [<commit-ish>...]
+'git describe' [--all] [--tags] [--contains] [--abbrev=<n>]
+	     --dirty[=<mark>]
 'git describe' <blob>
 
 DESCRIPTION
