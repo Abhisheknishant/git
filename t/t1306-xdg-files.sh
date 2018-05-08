@@ -6,6 +6,7 @@
 #
 
 test_description='Compatibility with $XDG_CONFIG_HOME/git/ files'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

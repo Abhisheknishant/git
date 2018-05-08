@@ -4,6 +4,7 @@
 test_description='Per branch config variables affects "git fetch".
 
 '
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

@@ -6,6 +6,7 @@
 test_description='git apply --whitespace=strip and configuration file.
 
 '
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

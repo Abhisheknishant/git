@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='test untracked cache'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

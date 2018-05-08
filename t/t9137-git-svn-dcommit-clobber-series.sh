@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2007 Eric Wong
 test_description='git svn dcommit clobber series'
+test_preserve_cwd=YesForNow
 . ./lib-git-svn.sh
 
 test_expect_success 'initialize repo' '

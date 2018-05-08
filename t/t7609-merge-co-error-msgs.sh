@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='unpack-trees error messages'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

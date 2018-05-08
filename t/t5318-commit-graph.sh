@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='commit graph'
+test_preserve_cwd=YesForNow
 . ./test-lib.sh
 
 test_expect_success 'setup full repo' '

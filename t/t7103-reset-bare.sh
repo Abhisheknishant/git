@@ -1,6 +1,8 @@
 #!/bin/sh
 
 test_description='git reset in a bare repository'
+test_preserve_cwd=YesForNow
+
 . ./test-lib.sh
 
 test_expect_success 'setup non-bare' '

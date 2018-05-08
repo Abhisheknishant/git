@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='Various filesystem issues'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

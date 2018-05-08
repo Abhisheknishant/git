@@ -5,6 +5,7 @@
 #
 
 test_description='Merge logic in fetch'
+test_preserve_cwd=YesForNow
 
 # NEEDSWORK: If the overspecification of the expected result is reduced, we
 # might be able to run this test in all protocol versions.

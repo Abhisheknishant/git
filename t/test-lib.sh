@@ -968,6 +968,10 @@ test_run_ () {
 		test_eval_ "$test_cleanup"
 		teardown_malloc_check
 	fi
+	if test -z "$test_preserve_cwd"
+	then
+		cd "$TRASH_DIRECTORY"
+	fi
 	if test "$verbose" = "t" && test -n "$HARNESS_ACTIVE"
 	then
 		echo ""

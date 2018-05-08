@@ -4,6 +4,7 @@
 #
 
 test_description='git svn init/clone tests'
+test_preserve_cwd=YesForNow
 
 . ./lib-git-svn.sh
 

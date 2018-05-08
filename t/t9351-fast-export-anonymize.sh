@@ -1,6 +1,8 @@
 #!/bin/sh
 
 test_description='basic tests for fast-export --anonymize'
+test_preserve_cwd=YesForNow
+
 . ./test-lib.sh
 
 test_expect_success 'setup simple repo' '

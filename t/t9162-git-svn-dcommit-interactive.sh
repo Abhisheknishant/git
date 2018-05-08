@@ -3,6 +3,8 @@
 # Copyright (c) 2011 Frédéric Heitzmann
 
 test_description='git svn dcommit --interactive series'
+test_preserve_cwd=YesForNow
+
 . ./lib-git-svn.sh
 
 test_expect_success 'initialize repo' '

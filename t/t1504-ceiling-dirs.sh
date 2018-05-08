@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='test GIT_CEILING_DIRECTORIES'
+test_preserve_cwd=YesForNow
 . ./test-lib.sh
 
 test_prefix() {

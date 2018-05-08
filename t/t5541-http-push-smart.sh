@@ -4,6 +4,8 @@
 #
 
 test_description='test smart pushing over http via http-backend'
+test_preserve_cwd=YesForNow
+
 . ./test-lib.sh
 
 ROOT_PATH="$PWD"

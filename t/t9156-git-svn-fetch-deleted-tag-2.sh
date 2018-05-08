@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='git svn fetch deleted tag 2'
+test_preserve_cwd=YesForNow
 
 . ./lib-git-svn.sh
 

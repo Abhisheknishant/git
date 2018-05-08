@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='git p4 locked file behavior'
+test_preserve_cwd=YesForNow
 
 . ./lib-git-p4.sh
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='errors in upload-pack'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

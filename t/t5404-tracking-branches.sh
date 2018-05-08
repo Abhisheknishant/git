@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='tracking branch update checks for git push'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

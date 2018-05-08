@@ -606,12 +606,6 @@ And here are the "don'ts:"
  - Don't use sh without spelling it as "$SHELL_PATH", when the script
    can be misinterpreted by broken platform shell (e.g. Solaris).
 
- - Don't chdir around in tests.  It is not sufficient to chdir to
-   somewhere and then chdir back to the original location later in
-   the test, as any intermediate step can fail and abort the test,
-   causing the next test to start in an unexpected directory.  Do so
-   inside a subshell if necessary.
-
  - Don't save and verify the standard error of compound commands, i.e.
    group commands, subshells, and shell functions (except test helper
    functions like 'test_must_fail') like this:

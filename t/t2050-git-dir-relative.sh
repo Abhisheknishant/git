@@ -11,6 +11,7 @@ It creates a commit-hook and tests it, then moves .git
 into the subdir while keeping the worktree location,
 and tries commits from the top and the subdir, checking
 that the commit-hook still gets called.'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

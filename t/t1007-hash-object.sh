@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description="git hash-object"
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 

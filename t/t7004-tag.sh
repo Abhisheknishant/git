@@ -6,6 +6,7 @@
 test_description='git tag
 
 Tests for operations with tags.'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 . "$TEST_DIRECTORY"/lib-gpg.sh

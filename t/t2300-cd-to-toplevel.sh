@@ -1,6 +1,7 @@
 #!/bin/sh
 
 test_description='cd_to_toplevel'
+test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
