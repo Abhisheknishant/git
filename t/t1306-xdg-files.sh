@@ -6,7 +6,6 @@
 #
 
 test_description='Compatibility with $XDG_CONFIG_HOME/git/ files'
-test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
@@ -83,12 +82,14 @@ test_expect_success 'Setup' '
 
 
 test_expect_success 'Exclusion of a file in the XDG ignore file' '
+	cd git &&
 	mkdir -p "$HOME"/.config/git/ &&
 	echo to_be_excluded >"$HOME"/.config/git/ignore &&
 	test_must_fail git add to_be_excluded
 '
 
 test_expect_success '$XDG_CONFIG_HOME overrides $HOME/.config/git/ignore' '
+	cd git &&
 	mkdir -p "$HOME"/xdg/git &&
 	echo content >excluded_by_xdg_only &&
 	echo excluded_by_xdg_only >"$HOME"/xdg/git/ignore &&
@@ -101,12 +102,14 @@ test_expect_success '$XDG_CONFIG_HOME overrides $HOME/.config/git/ignore' '
 '
 
 test_expect_success 'Exclusion in both XDG and local ignore files' '
+	cd git &&
 	echo to_be_excluded >.gitignore &&
 	test_must_fail git add to_be_excluded
 '
 
 
 test_expect_success 'Exclusion in a non-XDG global ignore file' '
+	cd git &&
 	rm .gitignore &&
 	echo >"$HOME"/.config/git/ignore &&
 	echo to_be_excluded >"$HOME"/my_gitignore &&
@@ -115,6 +118,7 @@ test_expect_success 'Exclusion in a non-XDG global ignore file' '
 '
 
 test_expect_success 'Checking XDG ignore file when HOME is unset' '
+	cd git &&
 	(sane_unset HOME &&
 	 git config --unset core.excludesfile &&
 	 git ls-files --exclude-standard --ignored >actual) &&
@@ -122,6 +126,7 @@ test_expect_success 'Checking XDG ignore file when HOME is unset' '
 '
 
 test_expect_success 'Checking attributes in the XDG attributes file' '
+	cd git &&
 	echo foo >f &&
 	git check-attr -a f >actual &&
 	test_line_count -eq 0 actual &&
@@ -132,12 +137,14 @@ test_expect_success 'Checking attributes in the XDG attributes file' '
 '
 
 test_expect_success 'Checking XDG attributes when HOME is unset' '
+	cd git &&
 	(sane_unset HOME &&
 	 git check-attr -a f >actual) &&
 	test_must_be_empty actual
 '
 
 test_expect_success '$XDG_CONFIG_HOME overrides $HOME/.config/git/attributes' '
+	cd git &&
 	mkdir -p "$HOME"/xdg/git &&
 	echo "f attr_f=xdg" >"$HOME"/xdg/git/attributes &&
 	echo "f: attr_f: xdg" >expected &&
@@ -146,6 +153,7 @@ test_expect_success '$XDG_CONFIG_HOME overrides $HOME/.config/git/attributes' '
 '
 
 test_expect_success 'Checking attributes in both XDG and local attributes files' '
+	cd git &&
 	echo "f -attr_f" >.gitattributes &&
 	echo "f: attr_f: unset" >expected &&
 	git check-attr -a f >actual &&
@@ -154,6 +162,7 @@ test_expect_success 'Checking attributes in both XDG and local attributes files'
 
 
 test_expect_success 'Checking attributes in a non-XDG global attributes file' '
+	cd git &&
 	rm -f .gitattributes &&
 	echo "f attr_f=test" >"$HOME"/my_gitattributes &&
 	git config core.attributesfile "$HOME"/my_gitattributes &&
@@ -164,6 +173,7 @@ test_expect_success 'Checking attributes in a non-XDG global attributes file' '
 
 
 test_expect_success 'write: xdg file exists and ~/.gitconfig doesn'\''t' '
+	cd git &&
 	mkdir -p "$HOME"/.config/git &&
 	>"$HOME"/.config/git/config &&
 	rm -f "$HOME"/.gitconfig &&
@@ -175,6 +185,7 @@ test_expect_success 'write: xdg file exists and ~/.gitconfig doesn'\''t' '
 
 
 test_expect_success 'write: xdg file exists and ~/.gitconfig exists' '
+	cd git &&
 	>"$HOME"/.gitconfig &&
 	git config --global user.name "write_gitconfig" &&
 	echo "[user]" >expected &&
@@ -184,6 +195,7 @@ test_expect_success 'write: xdg file exists and ~/.gitconfig exists' '
 
 
 test_expect_success 'write: ~/.config/git/ exists and config file doesn'\''t' '
+	cd git &&
 	rm -f "$HOME"/.gitconfig &&
 	rm -f "$HOME"/.config/git/config &&
 	git config --global user.name "write_gitconfig" &&
