@@ -3,7 +3,6 @@
 # Copyright (c) 2011 Frédéric Heitzmann
 
 test_description='git svn dcommit --interactive series'
-test_preserve_cwd=YesForNow
 
 . ./lib-git-svn.sh
 
@@ -16,51 +15,47 @@ test_expect_success 'initialize repo' '
 	'
 
 test_expect_success 'answers: y [\n] yes' '
-	(
-		echo "change #1" >> foo && git commit -a -m"change #1" &&
-		echo "change #2" >> foo && git commit -a -m"change #2" &&
-		echo "change #3" >> foo && git commit -a -m"change #3" &&
-		( echo "y
+	cd test-interactive &&
+	echo "change #1" >> foo && git commit -a -m"change #1" &&
+	echo "change #2" >> foo && git commit -a -m"change #2" &&
+	echo "change #3" >> foo && git commit -a -m"change #3" &&
+	( echo "y
 
 y" | GIT_SVN_NOTTY=1 git svn dcommit --interactive ) &&
-		test $(git rev-parse HEAD) = $(git rev-parse remotes/git-svn)
-	)
+	test $(git rev-parse HEAD) = $(git rev-parse remotes/git-svn)
 	'
 
 test_expect_success 'answers: yes yes no' '
-	(
-		echo "change #1" >> foo && git commit -a -m"change #1" &&
-		echo "change #2" >> foo && git commit -a -m"change #2" &&
-		echo "change #3" >> foo && git commit -a -m"change #3" &&
-		( echo "yes
+	cd test-interactive &&
+	echo "change #1" >> foo && git commit -a -m"change #1" &&
+	echo "change #2" >> foo && git commit -a -m"change #2" &&
+	echo "change #3" >> foo && git commit -a -m"change #3" &&
+	( echo "yes
 yes
 no" | GIT_SVN_NOTTY=1 git svn dcommit --interactive ) &&
-		test $(git rev-parse HEAD^^^) = $(git rev-parse remotes/git-svn) &&
-		git reset --hard remotes/git-svn
-	)
+	test $(git rev-parse HEAD^^^) = $(git rev-parse remotes/git-svn) &&
+	git reset --hard remotes/git-svn
 	'
 
 test_expect_success 'answers: yes quit' '
-	(
-		echo "change #1" >> foo && git commit -a -m"change #1" &&
-		echo "change #2" >> foo && git commit -a -m"change #2" &&
-		echo "change #3" >> foo && git commit -a -m"change #3" &&
-		( echo "yes
+	cd test-interactive &&
+	echo "change #1" >> foo && git commit -a -m"change #1" &&
+	echo "change #2" >> foo && git commit -a -m"change #2" &&
+	echo "change #3" >> foo && git commit -a -m"change #3" &&
+	( echo "yes
 quit" | GIT_SVN_NOTTY=1 git svn dcommit --interactive ) &&
-		test $(git rev-parse HEAD^^^) = $(git rev-parse remotes/git-svn) &&
-		git reset --hard remotes/git-svn
-	)
+	test $(git rev-parse HEAD^^^) = $(git rev-parse remotes/git-svn) &&
+	git reset --hard remotes/git-svn
 	'
 
 test_expect_success 'answers: all' '
-	(
-		echo "change #1" >> foo && git commit -a -m"change #1" &&
-		echo "change #2" >> foo && git commit -a -m"change #2" &&
-		echo "change #3" >> foo && git commit -a -m"change #3" &&
-		( echo "all" | GIT_SVN_NOTTY=1 git svn dcommit --interactive ) &&
-		test $(git rev-parse HEAD) = $(git rev-parse remotes/git-svn) &&
-		git reset --hard remotes/git-svn
-	)
+	cd test-interactive &&
+	echo "change #1" >> foo && git commit -a -m"change #1" &&
+	echo "change #2" >> foo && git commit -a -m"change #2" &&
+	echo "change #3" >> foo && git commit -a -m"change #3" &&
+	( echo "all" | GIT_SVN_NOTTY=1 git svn dcommit --interactive ) &&
+	test $(git rev-parse HEAD) = $(git rev-parse remotes/git-svn) &&
+	git reset --hard remotes/git-svn
 	'
 
 test_done
