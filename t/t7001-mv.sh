@@ -1,7 +1,6 @@
 #!/bin/sh
 
 test_description='git mv in subdirs'
-test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
@@ -19,7 +18,7 @@ test_expect_success \
 # in path0 currently
 test_expect_success \
     'commiting the change' \
-    'cd .. && git commit -m move-out -a'
+    'git commit -m move-out -a'
 
 test_expect_success \
     'checking the commit' \
@@ -33,7 +32,7 @@ test_expect_success \
 # in path0 currently
 test_expect_success \
     'commiting the change' \
-    'cd .. && git commit -m move-in -a'
+    'git commit -m move-in -a'
 
 test_expect_success \
     'checking the commit' \
@@ -183,7 +182,7 @@ test_expect_success "Sergey Vlasov's test case" '
 	git mv ab a
 '
 
-test_expect_success 'absolute pathname' '(
+test_expect_success 'absolute pathname' '
 
 	rm -fr mine &&
 	mkdir mine &&
@@ -200,9 +199,9 @@ test_expect_success 'absolute pathname' '(
 	git ls-files --error-unmatch in/file
 
 
-)'
+'
 
-test_expect_success 'absolute pathname outside should fail' '(
+test_expect_success 'absolute pathname outside should fail' '
 
 	rm -fr mine &&
 	mkdir mine &&
@@ -219,7 +218,7 @@ test_expect_success 'absolute pathname outside should fail' '(
 	! test -d ../in &&
 	git ls-files --error-unmatch sub/file
 
-)'
+'
 
 test_expect_success 'git mv to move multiple sources into a directory' '
 	rm -fr .git && git init &&
