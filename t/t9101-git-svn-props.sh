@@ -4,7 +4,6 @@
 #
 
 test_description='git svn property tests'
-test_preserve_cwd=YesForNow
 
 . ./lib-git-svn.sh
 
@@ -106,18 +105,19 @@ do
 done
 
 
-cd test_wc
-	printf '$Id$\rHello\rWorld\r' > cr
-	printf '$Id$\rHello\rWorld' > ne_cr
-	a_cr=$(printf '$Id$\r\nHello\r\nWorld\r\n' | git hash-object --stdin)
-	a_ne_cr=$(printf '$Id$\r\nHello\r\nWorld' | git hash-object --stdin)
-	test_expect_success 'Set CRLF on cr files' \
-	'svn_cmd propset svn:eol-style CRLF cr &&
-	 svn_cmd propset svn:eol-style CRLF ne_cr &&
-	 svn_cmd propset svn:keywords Id cr &&
-	 svn_cmd propset svn:keywords Id ne_cr &&
-	 svn_cmd commit -m "propset CRLF on cr files"'
-cd ..
+test_expect_success 'Set CRLF on cr files' '
+	cd test_wc &&
+	printf "$Id$\rHello\rWorld\r" >cr &&
+	printf "$Id$\rHello\rWorld" >ne_cr &&
+	a_cr=$(printf "$Id$\r\nHello\r\nWorld\r\n" | git hash-object --stdin) &&
+	a_ne_cr=$(printf "$Id$\r\nHello\r\nWorld" | git hash-object --stdin) &&
+	svn_cmd propset svn:eol-style CRLF cr &&
+	svn_cmd propset svn:eol-style CRLF ne_cr &&
+	svn_cmd propset svn:keywords Id cr &&
+	svn_cmd propset svn:keywords Id ne_cr &&
+	svn_cmd commit -m "propset CRLF on cr files"
+'
+
 test_expect_success 'fetch and pull latest from svn' \
 	'git svn fetch && git pull . remotes/git-svn'
 
@@ -208,7 +208,7 @@ test_expect_success 'test propget' '
 	test_propget svn:ignore .././deeply/nested ../prop.expect
 	'
 
-cat >prop.expect <<\EOF
+cat >deeply/prop.expect <<\EOF
 Properties on '.':
   svn:entry:committed-date
   svn:entry:committed-rev
@@ -216,7 +216,7 @@ Properties on '.':
   svn:entry:uuid
   svn:ignore
 EOF
-cat >prop2.expect <<\EOF
+cat >deeply/prop2.expect <<\EOF
 Properties on 'nested/directory/.keep':
   svn:entry:committed-date
   svn:entry:committed-rev
@@ -225,6 +225,7 @@ Properties on 'nested/directory/.keep':
 EOF
 
 test_expect_success 'test proplist' "
+	cd deeply &&
 	git svn proplist . >actual &&
 	cmp prop.expect actual &&
 
