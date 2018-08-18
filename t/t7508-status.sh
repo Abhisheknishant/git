@@ -1137,7 +1137,7 @@ test_expect_success '--ignore-submodules=dirty suppresses submodules with untrac
 test_expect_success '.gitmodules ignore=dirty suppresses submodules with untracked content' '
 	test_config diff.ignoreSubmodules dirty &&
 	git status >output &&
-	! test -s actual &&
+	test_i18ncmp expect output &&
 	git config --add -f .gitmodules submodule.subname.ignore dirty &&
 	git config --add -f .gitmodules submodule.subname.path sm &&
 	git status >output &&
