@@ -1,7 +1,11 @@
 #!/bin/sh
 
 test_description='test untracked cache'
-test_preserve_cwd=YesForNow
+
+# It's simpler to deal with untracked files when the test repo is
+# one directory deeper, because then we can put the 'actual' and
+# 'expect' files in the parent dir.
+test_preserve_cwd=ItIsSimplerThatWay
 
 . ./test-lib.sh
 
