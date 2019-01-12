@@ -1,7 +1,6 @@
 #!/bin/sh
 
 test_description='basic tests for fast-export --anonymize'
-test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
@@ -57,6 +56,7 @@ test_expect_success 'import stream to new repository' '
 '
 
 test_expect_success 'result has two branches' '
+	cd new &&
 	git for-each-ref --format="%(refname)" refs/heads >branches &&
 	test_line_count = 2 branches &&
 	other_branch=$(grep -v refs/heads/master branches)
@@ -66,12 +66,14 @@ test_expect_success 'repo has original shape and timestamps' '
 	shape () {
 		git log --format="%m %ct" --left-right --boundary "$@"
 	} &&
-	(cd .. && shape master...other) >expect &&
+	shape master...other >new/expect &&
+	cd new &&
 	shape master...$other_branch >actual &&
 	test_cmp expect actual
 '
 
 test_expect_success 'root tree has original shape' '
+	cd new &&
 	# the output entries are not necessarily in the same
 	# order, but we know at least that we will have one tree
 	# and one blob, so just check the sorted order
@@ -85,6 +87,7 @@ test_expect_success 'root tree has original shape' '
 '
 
 test_expect_success 'paths in subdir ended up in one tree' '
+	cd new &&
 	cat >expect <<-\EOF &&
 	blob
 	blob
@@ -96,12 +99,14 @@ test_expect_success 'paths in subdir ended up in one tree' '
 '
 
 test_expect_success 'tag points to branch tip' '
+	cd new &&
 	git rev-parse $other_branch >expect &&
 	git for-each-ref --format="%(*objectname)" | grep . >actual &&
 	test_cmp expect actual
 '
 
 test_expect_success 'idents are shared' '
+	cd new &&
 	git log --all --format="%an <%ae>" >authors &&
 	sort -u authors >unique &&
 	test_line_count = 1 unique &&
