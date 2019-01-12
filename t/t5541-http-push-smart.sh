@@ -4,7 +4,6 @@
 #
 
 test_description='test smart pushing over http via http-backend'
-test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
@@ -75,11 +74,12 @@ test_expect_success 'push to remote repository (standard)' '
 	GIT_TRACE_CURL=true git push -v -v 2>err &&
 	! grep "Expect: 100-continue" err &&
 	grep "POST git-receive-pack ([0-9]* bytes)" err &&
-	(cd "$HTTPD_DOCUMENT_ROOT_PATH"/test_repo.git &&
-	 test $HEAD = $(git rev-parse --verify HEAD))
+	cd "$HTTPD_DOCUMENT_ROOT_PATH"/test_repo.git &&
+	test $HEAD = $(git rev-parse --verify HEAD)
 '
 
 test_expect_success 'push already up-to-date' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	git push
 '
 
@@ -101,7 +101,7 @@ exit 1
 EOF
 chmod a+x "$HTTPD_DOCUMENT_ROOT_PATH/test_repo.git/hooks/update"
 
-cat >exp <<EOF
+cat >"$ROOT_PATH"/test_repo_clone/exp <<EOF
 remote: error: hook declined to update refs/heads/dev2
 To http://127.0.0.1:$LIB_HTTPD_PORT/smart/test_repo.git
  ! [remote rejected] dev2 -> dev2 (hook declined)
@@ -121,7 +121,7 @@ test_expect_success 'rejected update prints status' '
 '
 rm -f "$HTTPD_DOCUMENT_ROOT_PATH/test_repo.git/hooks/update"
 
-cat >exp <<EOF
+cat >"$ROOT_PATH"/test_repo_clone/exp <<EOF
 GET  /smart/test_repo.git/info/refs?service=git-upload-pack HTTP/1.1 200
 POST /smart/test_repo.git/git-upload-pack HTTP/1.1 200
 GET  /smart/test_repo.git/info/refs?service=git-receive-pack HTTP/1.1 200
@@ -135,6 +135,7 @@ GET  /smart/test_repo.git/info/refs?service=git-receive-pack HTTP/1.1 200
 POST /smart/test_repo.git/git-receive-pack HTTP/1.1 200
 EOF
 test_expect_success 'used receive-pack service' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	# NEEDSWORK: If the overspecification of the expected result is reduced, we
 	# might be able to run this test in all protocol versions.
 	if test "$GIT_TEST_PROTOCOL_VERSION" = 0
@@ -147,6 +148,7 @@ test_http_push_nonff "$HTTPD_DOCUMENT_ROOT_PATH"/test_repo.git \
 	"$ROOT_PATH"/test_repo_clone master 		success
 
 test_expect_success 'push fails for non-fast-forward refs unmatched by remote helper' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	# create a dissimilarly-named remote ref so that git is unable to match the
 	# two refs (viz. local, remote) unless an explicit refspec is provided.
 	git push origin master:retsam &&
@@ -159,16 +161,19 @@ test_expect_success 'push fails for non-fast-forward refs unmatched by remote he
 	test_must_fail git push -v origin +master master:retsam >output 2>&1'
 
 test_expect_success 'push fails for non-fast-forward refs unmatched by remote helper: remote output' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	grep "^ + [a-f0-9]*\.\.\.[a-f0-9]* *master -> master (forced update)$" output &&
 	grep "^ ! \[rejected\] *master -> retsam (non-fast-forward)$" output
 '
 
 test_expect_success 'push fails for non-fast-forward refs unmatched by remote helper: our output' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	test_i18ngrep "Updates were rejected because" \
 		output
 '
 
 test_expect_success 'push (chunked)' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	git checkout master &&
 	test_commit commit path3 &&
 	HEAD=$(git rev-parse --verify HEAD) &&
@@ -265,6 +270,7 @@ test_expect_success 'push --atomic fails on server-side errors' '
 '
 
 test_expect_success 'push --all can push to empty repo' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	d=$HTTPD_DOCUMENT_ROOT_PATH/empty-all.git &&
 	git init --bare "$d" &&
 	git --git-dir="$d" config http.receivepack true &&
@@ -272,6 +278,7 @@ test_expect_success 'push --all can push to empty repo' '
 '
 
 test_expect_success 'push --mirror can push to empty repo' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	d=$HTTPD_DOCUMENT_ROOT_PATH/empty-mirror.git &&
 	git init --bare "$d" &&
 	git --git-dir="$d" config http.receivepack true &&
@@ -279,6 +286,7 @@ test_expect_success 'push --mirror can push to empty repo' '
 '
 
 test_expect_success 'push --all to repo with alternates' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	s=$HTTPD_DOCUMENT_ROOT_PATH/test_repo.git &&
 	d=$HTTPD_DOCUMENT_ROOT_PATH/alternates-all.git &&
 	git clone --bare --shared "$s" "$d" &&
@@ -288,6 +296,7 @@ test_expect_success 'push --all to repo with alternates' '
 '
 
 test_expect_success 'push --mirror to repo with alternates' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	s=$HTTPD_DOCUMENT_ROOT_PATH/test_repo.git &&
 	d=$HTTPD_DOCUMENT_ROOT_PATH/alternates-mirror.git &&
 	git clone --bare --shared "$s" "$d" &&
@@ -371,7 +380,6 @@ test_expect_success 'push to auth-only-for-push repo' '
 '
 
 test_expect_success 'create repo without http.receivepack set' '
-	cd "$ROOT_PATH" &&
 	git init half-auth &&
 	(
 		cd half-auth &&
@@ -381,7 +389,6 @@ test_expect_success 'create repo without http.receivepack set' '
 '
 
 test_expect_success 'clone via half-auth-complete does not need password' '
-	cd "$ROOT_PATH" &&
 	set_askpass wrong &&
 	git clone "$HTTPD_URL"/half-auth-complete/smart/half-auth.git \
 		half-auth-clone &&
@@ -401,6 +408,7 @@ test_expect_success 'push into half-auth-complete requires password' '
 '
 
 test_expect_success CMDLINE_LIMIT 'push 2000 tags over http' '
+	cd "$ROOT_PATH"/test_repo_clone &&
 	sha1=$(git rev-parse HEAD) &&
 	test_seq 2000 |
 	  sort |
@@ -410,29 +418,28 @@ test_expect_success CMDLINE_LIMIT 'push 2000 tags over http' '
 '
 
 test_expect_success GPG 'push with post-receive to inspect certificate' '
-	(
-		cd "$HTTPD_DOCUMENT_ROOT_PATH"/test_repo.git &&
-		mkdir -p hooks &&
-		write_script hooks/post-receive <<-\EOF &&
-		# discard the update list
-		cat >/dev/null
-		# record the push certificate
-		if test -n "${GIT_PUSH_CERT-}"
-		then
-			git cat-file blob $GIT_PUSH_CERT >../push-cert
-		fi &&
-		cat >../push-cert-status <<E_O_F
-		SIGNER=${GIT_PUSH_CERT_SIGNER-nobody}
-		KEY=${GIT_PUSH_CERT_KEY-nokey}
-		STATUS=${GIT_PUSH_CERT_STATUS-nostatus}
-		NONCE_STATUS=${GIT_PUSH_CERT_NONCE_STATUS-nononcestatus}
-		NONCE=${GIT_PUSH_CERT_NONCE-nononce}
-		E_O_F
-		EOF
+	cd "$HTTPD_DOCUMENT_ROOT_PATH"/test_repo.git &&
+	mkdir -p hooks &&
+	write_script hooks/post-receive <<-\EOF &&
+	# discard the update list
+	cat >/dev/null
+	# record the push certificate
+	if test -n "${GIT_PUSH_CERT-}"
+	then
+		git cat-file blob $GIT_PUSH_CERT >../push-cert
+	fi &&
+	cat >../push-cert-status <<E_O_F
+	SIGNER=${GIT_PUSH_CERT_SIGNER-nobody}
+	KEY=${GIT_PUSH_CERT_KEY-nokey}
+	STATUS=${GIT_PUSH_CERT_STATUS-nostatus}
+	NONCE_STATUS=${GIT_PUSH_CERT_NONCE_STATUS-nononcestatus}
+	NONCE=${GIT_PUSH_CERT_NONCE-nononce}
+	E_O_F
+	EOF
 
-		git config receive.certnonceseed sekrit &&
-		git config receive.certnonceslop 30
-	) &&
+	git config receive.certnonceseed sekrit &&
+	git config receive.certnonceslop 30 &&
+
 	cd "$ROOT_PATH/test_repo_clone" &&
 	test_commit cert-test &&
 	git push --signed "$HTTPD_URL/smart/test_repo.git" &&

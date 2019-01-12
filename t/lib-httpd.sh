@@ -213,22 +213,22 @@ test_http_push_nonff () {
 	'
 
 	test_expect_success 'non-fast-forward push show ref status' '
+		cd "$LOCAL_REPO" &&
 		grep "^ ! \[rejected\][ ]*$BRANCH -> $BRANCH (non-fast-forward)$" output
 	'
 
 	test_expect_success 'non-fast-forward push shows help message' '
+		cd "$LOCAL_REPO" &&
 		test_i18ngrep "Updates were rejected because" output
 	'
 
 	test_expect_${EXPECT_CAS_RESULT} 'force with lease aka cas' '
+		cd "$LOCAL_REPO" &&
 		HEAD=$(	cd "$REMOTE_REPO" && git rev-parse --verify HEAD ) &&
 		test_when_finished '\''
 			(cd "$REMOTE_REPO" && git update-ref HEAD "$HEAD")
 		'\'' &&
-		(
-			cd "$LOCAL_REPO" &&
-			git push -v --force-with-lease=$BRANCH:$HEAD origin
-		) &&
+		git push -v --force-with-lease=$BRANCH:$HEAD origin &&
 		git rev-parse --verify "$BRANCH" >expect &&
 		(
 			cd "$REMOTE_REPO" && git rev-parse --verify HEAD
