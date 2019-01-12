@@ -5,7 +5,6 @@
 #
 
 test_description='Merge logic in fetch'
-test_preserve_cwd=YesForNow
 
 # NEEDSWORK: If the overspecification of the expected result is reduced, we
 # might be able to run this test in all protocol versions.
@@ -184,6 +183,7 @@ do
 	actual_r="$pfx-refs.$test"
 
 	test_expect_success "$cmd" '
+		cd cloned &&
 		cp "$expect_f" expect_f &&
 		convert_expected expect_f sed_script &&
 		cp "$expect_r" expect_r &&
