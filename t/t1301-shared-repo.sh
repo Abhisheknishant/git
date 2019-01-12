@@ -4,7 +4,7 @@
 #
 
 test_description='Test shared repository initialization'
-test_preserve_cwd=YesForNow
+test_preserve_cwd=ItIsSimplerThatWay
 
 . ./test-lib.sh
 
