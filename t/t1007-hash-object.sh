@@ -1,7 +1,9 @@
 #!/bin/sh
 
 test_description="git hash-object"
-test_preserve_cwd=YesForNow
+# With all that push_repo and pop_repo going on it's simpler to
+# to preserve cwd.
+test_preserve_cwd=ItIsSimplerThatWay
 
 . ./test-lib.sh
 
