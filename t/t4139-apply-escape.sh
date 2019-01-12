@@ -1,13 +1,13 @@
 #!/bin/sh
 
 test_description='paths written by git-apply cannot escape the working tree'
-test_preserve_cwd=YesForNow
 
 . ./test-lib.sh
 
 # tests will try to write to ../foo, and we do not
 # want them to escape the trash directory when they
 # fail
+test_preserve_cwd=ItIsSimplerThatWay
 test_expect_success 'bump git repo one level down' '
 	mkdir inside &&
 	mv .git inside/ &&
