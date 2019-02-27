@@ -26,10 +26,12 @@
 # In particular, quoting isn't enough, as the path may contain the same quote
 # that we're using.
 test_set_editor () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	FAKE_EDITOR="$1"
 	export FAKE_EDITOR
 	EDITOR='"$FAKE_EDITOR"'
 	export EDITOR
+	restore_tracing_and_return_with $?
 }
 
 test_set_index_version () {
@@ -38,6 +40,7 @@ test_set_index_version () {
 }
 
 test_decode_color () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	awk '
 		function name(n) {
 			if (n == 0) return "RESET";
@@ -82,6 +85,7 @@ test_decode_color () {
 			print
 		}
 	'
+	restore_tracing_and_return_with $?
 }
 
 lf_to_nul () {
@@ -135,6 +139,7 @@ sane_unset () {
 }
 
 test_tick () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if test -z "${test_tick+set}"
 	then
 		test_tick=1112911993
@@ -144,6 +149,7 @@ test_tick () {
 	GIT_COMMITTER_DATE="$test_tick -0700"
 	GIT_AUTHOR_DATE="$test_tick -0700"
 	export GIT_COMMITTER_DATE GIT_AUTHOR_DATE
+	restore_tracing_and_return_with $?
 }
 
 # Stop execution and start a shell. This is useful for debugging tests.
@@ -190,6 +196,7 @@ debug () {
 # the git invocations.
 
 test_commit () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	notick= &&
 	signoff= &&
 	indir= &&
@@ -222,17 +229,20 @@ test_commit () {
 	fi &&
 	git ${indir:+ -C "$indir"} commit $signoff -m "$1" &&
 	git ${indir:+ -C "$indir"} tag "${4:-$1}"
+	restore_tracing_and_return_with $?
 }
 
 # Call test_merge with the arguments "<message> <commit>", where <commit>
 # can be a tag pointing to the commit-to-merge.
 
 test_merge () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	label="$1" &&
 	shift &&
 	test_tick &&
 	git merge -m "$label" "$@" &&
 	git tag "$label"
+	restore_tracing_and_return_with $?
 }
 
 # Efficiently create <nr> commits, each with a unique number (from 1 to <nr>
@@ -374,6 +384,7 @@ test_modebits () {
 
 # Unset a configuration variable, but don't fail if it doesn't exist.
 test_unconfig () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	config_dir=
 	if test "$1" = -C
 	then
@@ -388,11 +399,12 @@ test_unconfig () {
 		config_status=0
 		;;
 	esac
-	return $config_status
+	restore_tracing_and_return_with $config_status
 }
 
 # Set git config, automatically unsetting it after the test is over.
 test_config () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	config_dir=
 	if test "$1" = -C
 	then
@@ -402,19 +414,24 @@ test_config () {
 	fi
 	test_when_finished "test_unconfig ${config_dir:+-C '$config_dir'} '$1'" &&
 	git ${config_dir:+-C "$config_dir"} config "$@"
+	restore_tracing_and_return_with $?
 }
 
 test_config_global () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	test_when_finished "test_unconfig --global '$1'" &&
 	git config --global "$@"
+	restore_tracing_and_return_with $?
 }
 
 write_script () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	{
 		echo "#!${2-"$SHELL_PATH"}" &&
 		cat
 	} >"$1" &&
 	chmod +x "$1"
+	restore_tracing_and_return_with $?
 }
 
 # Use test_set_prereq to tell that a particular prerequisite is available.
@@ -492,6 +509,7 @@ mkdir -p "$TRASH_DIRECTORY/prereq-test-dir" &&
 }
 
 test_have_prereq () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	# prerequisites can be concatenated with ','
 	save_IFS=$IFS
 	IFS=,
@@ -556,6 +574,7 @@ test_have_prereq () {
 	done
 
 	test $total_prereq = $ok_prereq
+	restore_tracing_and_return_with $?
 }
 
 test_declared_prereq () {
@@ -704,31 +723,38 @@ test_external_without_stderr () {
 # The commands test the existence or non-existence of $1. $2 can be
 # given to provide a more precise diagnosis.
 test_path_is_file () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if ! test -f "$1"
 	then
 		echo "File $1 doesn't exist. $2"
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 test_path_is_dir () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if ! test -d "$1"
 	then
 		echo "Directory $1 doesn't exist. $2"
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 test_path_exists () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if ! test -e "$1"
 	then
 		echo "Path $1 doesn't exist. $2"
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 # Check if the directory exists and is empty as expected, barf otherwise.
 test_dir_is_empty () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0
 	if ! test_path_is_dir "$1"
 	then
@@ -739,19 +765,22 @@ test_dir_is_empty () {
 		ls -la "$1"
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Check if the file exists and has a size greater than zero
 test_file_not_empty () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if ! test -s "$1"
 	then
 		echo "'$1' is not a non-empty file."
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 test_path_is_missing () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if test -e "$1"
 	then
 		echo "Path exists:"
@@ -762,6 +791,7 @@ test_path_is_missing () {
 		fi
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 # test_line_count checks that a file has the number of lines it
@@ -776,6 +806,7 @@ test_path_is_missing () {
 # output through when the number of lines is wrong.
 
 test_line_count () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0
 	if test $# != 3
 	then
@@ -790,7 +821,7 @@ test_line_count () {
 		cat "$3"
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Returns success if a comma separated string of keywords ($1) contains a
@@ -829,6 +860,7 @@ list_contains () {
 #     (Don't use 'success', use 'test_might_fail' instead.)
 
 test_must_fail () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret
 	case "$1" in
 	ok=*)
@@ -863,7 +895,7 @@ test_must_fail () {
 	else
 		ret=0
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 } 7>&2 2>&4
 
 # Similar to test_must_fail, but tolerates success, too.  This is
@@ -880,7 +912,9 @@ test_must_fail () {
 # Accepts the same options as test_must_fail.
 
 test_might_fail () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	test_must_fail ok=success "$@" 2>&7
+	restore_tracing_and_return_with $?
 } 7>&2 2>&4
 
 # Similar to test_must_fail and test_might_fail, but check that a
@@ -891,6 +925,7 @@ test_might_fail () {
 #	'
 
 test_expect_code () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	want_code=$1
 	shift
 	"$@" 2>&7
@@ -900,6 +935,7 @@ test_expect_code () {
 		echo >&4 "test_expect_code: command exited with $exit_code, we wanted $want_code $*"
 		false
 	fi
+	restore_tracing_and_return_with $?
 } 7>&2 2>&4
 
 # test_cmp is a helper function to compare actual and expected output.
@@ -916,7 +952,9 @@ test_expect_code () {
 # - not all diff versions understand "-u"
 
 test_cmp() {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	$GIT_TEST_CMP "$@"
+	restore_tracing_and_return_with $?
 }
 
 # Check that the given config key has the expected value.
@@ -929,6 +967,7 @@ test_cmp() {
 #    test_cmp_config foo core.bar
 #
 test_cmp_config() {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local GD &&
 	if test "$1" = "-C"
 	then
@@ -940,12 +979,15 @@ test_cmp_config() {
 	shift &&
 	git $GD config "$@" >actual.config &&
 	test_cmp expect.config actual.config
+	restore_tracing_and_return_with $?
 }
 
 # test_cmp_bin - helper to compare binary files
 
 test_cmp_bin() {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	cmp "$@"
+	restore_tracing_and_return_with $?
 }
 
 # Use this instead of test_cmp to compare files that contain expected and
@@ -953,7 +995,9 @@ test_cmp_bin() {
 # under GIT_TEST_GETTEXT_POISON this pretends that the command produced expected
 # results.
 test_i18ncmp () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	! test_have_prereq C_LOCALE_OUTPUT || test_cmp "$@"
+	restore_tracing_and_return_with $?
 }
 
 # Use this instead of "grep expected-string actual" to see if the
@@ -962,6 +1006,7 @@ test_i18ncmp () {
 # under GIT_TEST_GETTEXT_POISON this pretends that the command produced expected
 # results.
 test_i18ngrep () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0
 	eval "last_arg=\${$#}"
 
@@ -1001,24 +1046,27 @@ test_i18ngrep () {
 		fi
 	fi
 
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Call any command "$@" but be more verbose about its
 # failure. This is handy for commands like "test" which do
 # not output anything when they fail.
 verbose () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if ! "$@"
 	then
 		echo >&4 "command failed: $(git rev-parse --sq-quote "$@")"
 		false
 	fi
+	restore_tracing_and_return_with $?
 }
 
 # Check if the file expected to be empty is indeed empty, and barfs
 # otherwise.
 
 test_must_be_empty () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0
 	if ! test_path_is_file "$1"
 	then
@@ -1029,13 +1077,14 @@ test_must_be_empty () {
 		cat "$1"
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Tests that its two parameters refer to the same revision, or if '!' is
 # provided first, that its other two parameters refer to different
 # revisions.
 test_cmp_rev () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0 op='=' wrong_result=different r1 r2
 
 	if test $# -ge 1 && test "x$1" = 'x!'
@@ -1064,11 +1113,12 @@ test_cmp_rev () {
 	else
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Compare paths respecting core.ignoreCase
 test_cmp_fspath () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret
 	if test "x$1" = "x$2"
 	then
@@ -1082,7 +1132,7 @@ test_cmp_fspath () {
 	else
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Print a sequence of integers in increasing order, either with
@@ -1094,6 +1144,7 @@ test_cmp_fspath () {
 # from 1.
 
 test_seq () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	case $# in
 	1)	set 1 "$@" ;;
 	2)	;;
@@ -1105,6 +1156,7 @@ test_seq () {
 		echo "$test_seq_counter__"
 		test_seq_counter__=$(( $test_seq_counter__ + 1 ))
 	done
+	restore_tracing_and_return_with $?
 }
 
 # This function can be used to schedule some commands to be run
@@ -1131,6 +1183,7 @@ test_seq () {
 # what went wrong.
 
 test_when_finished () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	# We cannot detect when we are in a subshell in general, but by
 	# doing so on Bash is better than nothing (the test will
 	# silently pass on other shells).
@@ -1138,6 +1191,7 @@ test_when_finished () {
 	BUG "test_when_finished does nothing in a subshell"
 	test_cleanup="{ $*
 		} && (exit \"\$eval_ret\"); eval_ret=\$?; $test_cleanup"
+	restore_tracing_and_return_with $?
 }
 
 # This function can be used to schedule some commands to be run
@@ -1159,6 +1213,7 @@ test_when_finished () {
 # minimize any changes to the failed state.
 
 test_atexit () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	# We cannot detect when we are in a subshell in general, but by
 	# doing so on Bash is better than nothing (the test will
 	# silently pass on other shells).
@@ -1166,11 +1221,13 @@ test_atexit () {
 	BUG "test_atexit does nothing in a subshell"
 	test_atexit_cleanup="{ $*
 		} && (exit \"\$eval_ret\"); eval_ret=\$?; $test_atexit_cleanup"
+	restore_tracing_and_return_with $?
 }
 
 # Most tests can use the created repository, but some may need to create more.
 # Usage: test_create_repo <directory>
 test_create_repo () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	test "$#" = 1 ||
 	BUG "not 1 parameter to test-create-repo"
 	repo="$1"
@@ -1182,6 +1239,7 @@ test_create_repo () {
 		error "cannot run git init -- have you built things yet?"
 		mv .git/hooks .git/hooks-disabled
 	) || exit
+	restore_tracing_and_return_with $?
 }
 
 # This function helps on symlink challenged file systems when it is not
@@ -1190,6 +1248,7 @@ test_create_repo () {
 # symbolic link entry y to the index.
 
 test_ln_s_add () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	if test_have_prereq SYMLINKS
 	then
 		ln -s "$1" "$2" &&
@@ -1201,15 +1260,20 @@ test_ln_s_add () {
 		# pick up stat info from the file
 		git update-index "$2"
 	fi
+	restore_tracing_and_return_with $?
 }
 
 # This function writes out its parameters, one per line
 test_write_lines () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	printf "%s\n" "$@"
+	restore_tracing_and_return_with $?
 }
 
 perl () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	command "$PERL_PATH" "$@" 2>&7
+	restore_tracing_and_return_with $?
 } 7>&2 2>&4
 
 # Given the name of an environment variable with a bool value, normalize
@@ -1326,6 +1390,7 @@ mingw_read_file_strip_cr_ () {
 # it also works for shell functions (though those functions cannot impact
 # the environment outside of the test_env invocation).
 test_env () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	(
 		while test $# -gt 0
 		do
@@ -1342,11 +1407,13 @@ test_env () {
 			esac
 		done
 	)
+	restore_tracing_and_return_with $?
 } 7>&2 2>&4
 
 # Returns true if the numeric exit code in "$2" represents the expected signal
 # in "$1". Signals should be given numerically.
 test_match_signal () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=1
 	if test "$2" = "$((128 + $1))"
 	then
@@ -1357,11 +1424,12 @@ test_match_signal () {
 		# ksh
 		ret=0
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 }
 
 # Read up to "$1" bytes (or to EOF) from stdin and write them to stdout.
 test_copy_bytes () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	perl -e '
 		my $len = $ARGV[1];
 		while ($len > 0) {
@@ -1373,10 +1441,12 @@ test_copy_bytes () {
 			$len -= $nread;
 		}
 	' - "$1"
+	restore_tracing_and_return_with $?
 }
 
 # run "$@" inside a non-git directory
 nongit () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local ret=0
 	if test -d non-repo || mkdir non-repo
 	then
@@ -1390,17 +1460,19 @@ nongit () {
 	else
 		ret=1
 	fi
-	return $ret
+	restore_tracing_and_return_with $ret
 } 7>&2 2>&4
 
 # convert stdin to pktline representation; note that empty input becomes an
 # empty packet, not a flush packet (for that you can just print 0000 yourself).
 packetize() {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	cat >packetize.tmp &&
 	len=$(wc -c <packetize.tmp) &&
 	printf '%04x%s' "$(($len + 4))" &&
 	cat packetize.tmp &&
 	rm -f packetize.tmp
+	restore_tracing_and_return_with $?
 }
 
 # Parse the input as a series of pktlines, writing the result to stdout.
@@ -1409,6 +1481,7 @@ packetize() {
 #
 # NUL bytes are converted to "\\0" for ease of parsing with text tools.
 depacketize () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	perl -e '
 		while (read(STDIN, $len, 4) == 4) {
 			if ($len eq "0000") {
@@ -1425,6 +1498,7 @@ depacketize () {
 			}
 		}
 	'
+	restore_tracing_and_return_with $?
 }
 
 # Converts base-16 data into base-8. The output is given as a sequence of
@@ -1448,9 +1522,11 @@ test_detect_hash () {
 # Load common hash metadata and common placeholder object IDs for use with
 # test_oid.
 test_oid_init () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	test -n "$test_hash_algo" || test_detect_hash &&
 	test_oid_cache <"$TEST_DIRECTORY/oid-info/hash-info" &&
 	test_oid_cache <"$TEST_DIRECTORY/oid-info/oid"
+	restore_tracing_and_return_with $?
 }
 
 # Load key-value pairs from stdin suitable for use with test_oid.  Blank lines
@@ -1461,6 +1537,7 @@ test_oid_init () {
 # rawsz sha1:20
 # rawsz sha256:32
 test_oid_cache () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local tag rest k v &&
 
 	{ test -n "$test_hash_algo" || test_detect_hash; } &&
@@ -1486,11 +1563,13 @@ test_oid_cache () {
 		fi &&
 		eval "test_oid_${k}_$tag=\"\$v\""
 	done
+	restore_tracing_and_return_with $?
 }
 
 # Look up a per-hash value based on a key ($1).  The value must have been loaded
 # by test_oid_init or test_oid_cache.
 test_oid () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local var="test_oid_${test_hash_algo}_$1" &&
 
 	# If the variable is unset, we must be missing an entry for this
@@ -1500,18 +1579,22 @@ test_oid () {
 		BUG "undefined key '$1'"
 	fi &&
 	eval "printf '%s' \"\${$var}\""
+	restore_tracing_and_return_with $?
 }
 
 # Insert a slash into an object ID so it can be used to reference a location
 # under ".git/objects".  For example, "deadbeef..." becomes "de/adbeef..".
 test_oid_to_path () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local basename=${1#??}
 	echo "${1%$basename}/$basename"
+	restore_tracing_and_return_with $?
 }
 
 # Choose a port number based on the test script's number and store it in
 # the given variable name, unless that variable already contains a number.
 test_set_port () {
+	{ disable_tracing ; } 2>/dev/null 4>&2
 	local var=$1 port
 
 	if test $# -ne 1 || test -z "$var"
@@ -1546,6 +1629,7 @@ test_set_port () {
 	# ports.
 	port=$(($port + ${GIT_TEST_STRESS_JOB_NR:-0}))
 	eval $var=$port
+	restore_tracing_and_return_with $?
 }
 
 # Compare a file containing rev-list bitmap traversal output to its non-bitmap
