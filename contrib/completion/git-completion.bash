@@ -1612,6 +1612,19 @@ _git_format_patch ()
 			" "" "${cur##--thread=}"
 		return
 		;;
+	--interdiff=*)
+		__git_complete_refs --cur="${cur#*=}"
+		return
+		;;
+	--range-diff=*..*)
+		local arg="${cur#*=}"
+		__git_complete_refs --cur="${arg##*..}" --pfx="${arg%..*}.."
+		return
+		;;
+	--range-diff=*)
+		__git_complete_refs --cur="${cur#*=}"
+		return
+		;;
 	--*)
 		__gitcomp_builtin format-patch "$__git_format_patch_extra_options"
 		return
