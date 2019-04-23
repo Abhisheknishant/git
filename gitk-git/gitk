@@ -2163,17 +2163,17 @@ proc makewindow {} {
 	-selectbackground $selectbgcolor \
 	-background $bgcolor -bd 0 \
 	-yscrollincr $linespc -yscrollcommand "scrollcanv $cscroll"
-    .tf.histframe.pwclist add $canv
+    .tf.histframe.pwclist add $canv -weight 1
     set canv2 .tf.histframe.pwclist.canv2
     canvas $canv2 \
 	-selectbackground $selectbgcolor \
 	-background $bgcolor -bd 0 -yscrollincr $linespc
-    .tf.histframe.pwclist add $canv2
+    .tf.histframe.pwclist add $canv2 -weight 1
     set canv3 .tf.histframe.pwclist.canv3
     canvas $canv3 \
 	-selectbackground $selectbgcolor \
 	-background $bgcolor -bd 0 -yscrollincr $linespc
-    .tf.histframe.pwclist add $canv3
+    .tf.histframe.pwclist add $canv3 -weight 1
     if {$use_ttk} {
 	bind .tf.histframe.pwclist <Map> {
 	    bind %W <Map> {}
@@ -2189,7 +2189,6 @@ proc makewindow {} {
     ${NS}::scrollbar $cscroll -command {allcanvs yview}
     if {!$use_ttk} {$cscroll configure -highlightthickness 0}
     pack $cscroll -side right -fill y
-    bind .tf.histframe.pwclist <Configure> {resizeclistpanes %W %w}
     lappend bglist $canv $canv2 $canv3
     pack .tf.histframe.pwclist -fill both -expand 1 -side left
 
@@ -2456,7 +2455,7 @@ proc makewindow {} {
     $ctext tag conf wwrap -wrap word -lmargin2 1c
     $ctext tag conf bold -font textfontbold
 
-    .pwbottom add .bleft
+    .pwbottom add .bleft -weight 1
     if {!$use_ttk} {
 	.pwbottom paneconfigure .bleft -width $geometry(botwidth)
     }
@@ -2489,7 +2488,7 @@ proc makewindow {} {
 	-background [$cflist cget -selectbackground]
     $cflist tag configure bold -font mainfontbold
 
-    .pwbottom add .bright
+    .pwbottom add .bright -weight 1
     .ctop add .pwbottom
 
     # restore window width & height if known
@@ -2528,7 +2527,6 @@ proc makewindow {} {
         }
     }
 
-    bind .pwbottom <Configure> {resizecdetpanes %W %w}
     pack .ctop -fill both -expand 1
     bindall <1> {selcanvline %W %x %y}
     #bindall <B1-Motion> {selcanvline %W %x %y}
