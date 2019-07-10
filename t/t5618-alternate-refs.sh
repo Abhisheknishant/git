@@ -1,7 +1,7 @@
 #!/bin/sh
 
 test_description='test handling of --alternate-refs traversal'
-test_preserve_cwd=YesForNow
+test_preserve_cwd=ItIsSimplerThatWay
 . ./test-lib.sh
 
 # Avoid test_commit because we want a specific and known set of refs:
