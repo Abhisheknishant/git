@@ -1231,10 +1231,10 @@ static int process_ranges_arbitrary_commit(struct rev_info *rev, struct commit *
 	int changed = 0;
 
 	if (range) {
-		if (!commit->parents || !commit->parents->next)
-			changed = process_ranges_ordinary_commit(rev, commit, range);
-		else
+		if (commit->parents && commit->parents->next)
 			changed = process_ranges_merge_commit(rev, commit, range);
+		else
+			changed = process_ranges_ordinary_commit(rev, commit, range);
 	}
 
 	if (!changed)
