@@ -198,8 +198,7 @@ static void pickaxe(struct diff_queue_struct *q, struct diff_options *o,
 		 * the empty outq at the end of this function, but
 		 * first clear the current entries in the queue.
 		 */
-		for (i = 0; i < q->nr; i++)
-			diff_free_filepair(q->queue[i]);
+		free_diff_queue(q);
 	} else {
 		/* Showing only the filepairs that has the needle */
 		for (i = 0; i < q->nr; i++) {

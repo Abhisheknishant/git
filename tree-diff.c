@@ -660,10 +660,7 @@ static void try_to_follow_renames(const struct object_id *old_oid,
 	/*
 	 * Then, discard all the non-relevant file pairs...
 	 */
-	for (i = 0; i < q->nr; i++) {
-		struct diff_filepair *p = q->queue[i];
-		diff_free_filepair(p);
-	}
+	free_diff_queue(q);
 
 	/*
 	 * .. and re-instate the one we want (which might be either the

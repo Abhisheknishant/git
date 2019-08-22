@@ -550,6 +550,7 @@ void diffcore_fix_diff_index(void);
 "  -a  --text    treat all files as text.\n"
 
 int diff_queue_is_empty(void);
+void free_diff_queue(struct diff_queue_struct*);
 void diff_flush(struct diff_options*);
 void diff_warn_rename_limit(const char *varname, int needed, int degraded_cc);
 
