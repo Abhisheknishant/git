@@ -1160,24 +1160,23 @@ static int process_ranges_merge_commit(struct rev_info *rev, struct commit *comm
 				       struct line_log_data *range)
 {
 	struct line_log_data **cand;
-	struct commit **parents;
 	struct commit_list *p;
 	int i;
-	int nparents = commit_list_count(commit->parents);
+	int parent_limit = INT_MAX;
 
-	if (nparents > 1 && rev->first_parent_only)
-		nparents = 1;
+	if (rev->first_parent_only)
+		parent_limit = 1;
 
-	ALLOC_ARRAY(cand, nparents);
-	ALLOC_ARRAY(parents, nparents);
+	ALLOC_ARRAY(cand, commit_list_count(commit->parents));
 
-	p = commit->parents;
-	for (i = 0; i < nparents; i++) {
+	for (p = commit->parents, i = 0;
+	     p && i < parent_limit;
+	     p = p->next, i++) {
 		struct diff_queue_struct diffqueue;
+		struct commit *parent = p->item;
 		int changed;
-		parents[i] = p->item;
-		p = p->next;
-		queue_diffs(range, &rev->diffopt, &diffqueue, commit, parents[i]);
+
+		queue_diffs(range, &rev->diffopt, &diffqueue, commit, parent);
 
 		cand[i] = NULL;
 		changed = process_all_files(&cand[i], rev, &diffqueue, range);
@@ -1186,10 +1185,9 @@ static int process_ranges_merge_commit(struct rev_info *rev, struct commit *comm
 			 * This parent can take all the blame, so we
 			 * don't follow any other path in history
 			 */
-			add_line_range(rev, parents[i], cand[i]);
+			add_line_range(rev, parent, cand[i]);
 			clear_commit_line_range(rev, commit);
-			commit_list_append(parents[i], &commit->parents);
-			free(parents);
+			commit_list_append(parent, &commit->parents);
 			free(cand);
 			free_diff_queue(&diffqueue);
 			/* NEEDSWORK leaking like a sieve */
@@ -1201,12 +1199,15 @@ static int process_ranges_merge_commit(struct rev_info *rev, struct commit *comm
 	 * No single parent took the blame.  We add the candidates
 	 * from the above loop to the parents.
 	 */
-	for (i = 0; i < nparents; i++) {
-		add_line_range(rev, parents[i], cand[i]);
+	for (p = commit->parents, i = 0;
+	     p && i < parent_limit;
+	     p = p->next, i++) {
+		add_line_range(rev, p->item, cand[i]);
+		if (rev->first_parent_only && i == 0)
+			break;
 	}
 
 	clear_commit_line_range(rev, commit);
-	free(parents);
 	free(cand);
 	return 1;
 
