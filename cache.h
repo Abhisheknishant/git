@@ -151,10 +151,10 @@ struct cache_entry {
 	char name[FLEX_ARRAY]; /* more */
 };
 
-#define CE_STAGEMASK (0x3000)
-#define CE_EXTENDED  (0x4000)
-#define CE_VALID     (0x8000)
 #define CE_STAGESHIFT 12
+#define CE_STAGEMASK         (1 << CE_STAGESHIFT | 1 << (CE_STAGESHIFT + 1))
+#define CE_EXTENDED          (1 << 14)
+#define CE_VALID             (1 << 15)
 
 /*
  * Range 0xFFFF0FFF in ce_flags is divided into
