@@ -775,8 +775,8 @@ static int handle_submodule_head_ref(const char *refname,
 }
 
 static void status_submodule(const char *path, const struct object_id *ce_oid,
-			     unsigned int ce_flags, const char *prefix,
-			     unsigned int flags)
+			     enum cache_entry_flags ce_flags,
+			     const char *prefix, unsigned int flags)
 {
 	char *displaypath;
 	struct argv_array diff_files_args = ARGV_ARRAY_INIT;

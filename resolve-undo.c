@@ -119,7 +119,8 @@ int unmerge_index_entry_at(struct index_state *istate, int pos)
 	const struct cache_entry *ce;
 	struct string_list_item *item;
 	struct resolve_undo_info *ru;
-	int i, err = 0, matched;
+	int i, err = 0;
+	enum cache_entry_flags matched;
 	char *name;
 
 	if (!istate->resolve_undo)

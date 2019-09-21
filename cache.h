@@ -139,70 +139,74 @@ struct stat_data {
 	unsigned int sd_size;
 };
 
+#define CE_STAGESHIFT 12
+
+enum cache_entry_flags {
+	CE_STAGEMASK         = (1 << CE_STAGESHIFT | 1 << (CE_STAGESHIFT + 1)),
+	CE_EXTENDED          = (1 << 14),
+	CE_VALID             = (1 << 15),
+
+	/*
+	 * Range 0xFFFF0FFF in ce_flags is divided into
+	 * two parts: in-memory flags and on-disk ones.
+	 * Flags in CE_EXTENDED_FLAGS will get saved on-disk
+	 * if you want to save a new flag, add it in
+	 * CE_EXTENDED_FLAGS
+	 *
+	 * In-memory only flags
+	 */
+	CE_UPDATE            = (1 << 16),
+	CE_REMOVE            = (1 << 17),
+	CE_UPTODATE          = (1 << 18),
+	CE_ADDED             = (1 << 19),
+
+	CE_HASHED            = (1 << 20),
+	CE_FSMONITOR_VALID   = (1 << 21),
+	CE_WT_REMOVE         = (1 << 22), /* remove in work directory */
+	CE_CONFLICTED        = (1 << 23),
+
+	CE_UNPACKED          = (1 << 24),
+	CE_NEW_SKIP_WORKTREE = (1 << 25),
+
+	/* used to temporarily mark paths matched by pathspecs */
+	CE_MATCHED           = (1 << 26),
+
+	CE_UPDATE_IN_BASE    = (1 << 27),
+	CE_STRIP_NAME        = (1 << 28),
+
+	/*
+	 * Extended on-disk flags
+	 */
+	CE_INTENT_TO_ADD     = (1 << 29),
+	CE_SKIP_WORKTREE     = (1 << 30),
+	CE_EXTENDED_FLAGS    = (CE_INTENT_TO_ADD | CE_SKIP_WORKTREE),
+	/* CE_EXTENDED2 is for future extension */
+	CE_EXTENDED2         = (1U << 31),
+};
+
+/*
+ * Safeguard to avoid saving wrong flags:
+ *  - CE_EXTENDED2 (0x80000000) won't get saved until its semantic is known
+ *  - Bits in 0x0000FFFF have been saved in ce_flags already
+ *  - Bits in 0x003F0000 are currently in-memory flags
+ *
+ * FIXME: this just became a noop!
+ */
+#if CE_EXTENDED_FLAGS & 0x803FFFFF
+#error "CE_EXTENDED_FLAGS out of range"
+#endif
+
 struct cache_entry {
 	struct hashmap_entry ent;
 	struct stat_data ce_stat_data;
 	unsigned int ce_mode;
-	unsigned int ce_flags;
+	enum cache_entry_flags ce_flags;
 	unsigned int mem_pool_allocated;
 	unsigned int ce_namelen;
 	unsigned int index;	/* for link extension */
 	struct object_id oid;
 	char name[FLEX_ARRAY]; /* more */
 };
-
-#define CE_STAGESHIFT 12
-#define CE_STAGEMASK         (1 << CE_STAGESHIFT | 1 << (CE_STAGESHIFT + 1))
-#define CE_EXTENDED          (1 << 14)
-#define CE_VALID             (1 << 15)
-
-/*
- * Range 0xFFFF0FFF in ce_flags is divided into
- * two parts: in-memory flags and on-disk ones.
- * Flags in CE_EXTENDED_FLAGS will get saved on-disk
- * if you want to save a new flag, add it in
- * CE_EXTENDED_FLAGS
- *
- * In-memory only flags
- */
-#define CE_UPDATE            (1 << 16)
-#define CE_REMOVE            (1 << 17)
-#define CE_UPTODATE          (1 << 18)
-#define CE_ADDED             (1 << 19)
-
-#define CE_HASHED            (1 << 20)
-#define CE_FSMONITOR_VALID   (1 << 21)
-#define CE_WT_REMOVE         (1 << 22) /* remove in work directory */
-#define CE_CONFLICTED        (1 << 23)
-
-#define CE_UNPACKED          (1 << 24)
-#define CE_NEW_SKIP_WORKTREE (1 << 25)
-
-/* used to temporarily mark paths matched by pathspecs */
-#define CE_MATCHED           (1 << 26)
-
-#define CE_UPDATE_IN_BASE    (1 << 27)
-#define CE_STRIP_NAME        (1 << 28)
-
-/*
- * Extended on-disk flags
- */
-#define CE_INTENT_TO_ADD     (1 << 29)
-#define CE_SKIP_WORKTREE     (1 << 30)
-/* CE_EXTENDED2 is for future extension */
-#define CE_EXTENDED2         (1U << 31)
-
-#define CE_EXTENDED_FLAGS (CE_INTENT_TO_ADD | CE_SKIP_WORKTREE)
-
-/*
- * Safeguard to avoid saving wrong flags:
- *  - CE_EXTENDED2 won't get saved until its semantic is known
- *  - Bits in 0x0000FFFF have been saved in ce_flags already
- *  - Bits in 0x003F0000 are currently in-memory flags
- */
-#if CE_EXTENDED_FLAGS & 0x803FFFFF
-#error "CE_EXTENDED_FLAGS out of range"
-#endif
 
 /* Forward structure decls */
 struct pathspec;
@@ -216,7 +220,7 @@ struct tree;
 static inline void copy_cache_entry(struct cache_entry *dst,
 				    const struct cache_entry *src)
 {
-	unsigned int state = dst->ce_flags & CE_HASHED;
+	enum cache_entry_flags state = dst->ce_flags & CE_HASHED;
 	int mem_pool_allocated = dst->mem_pool_allocated;
 
 	/* Don't copy hash chain and name */
@@ -231,7 +235,7 @@ static inline void copy_cache_entry(struct cache_entry *dst,
 	dst->mem_pool_allocated = mem_pool_allocated;
 }
 
-static inline unsigned create_ce_flags(unsigned stage)
+static inline enum cache_entry_flags create_ce_flags(unsigned stage)
 {
 	return (stage << CE_STAGESHIFT);
 }

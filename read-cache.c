@@ -1775,7 +1775,7 @@ static struct cache_entry *create_from_disk(struct mem_pool *ce_mem_pool,
 	const char *name;
 	const unsigned hashsz = the_hash_algo->rawsz;
 	const uint16_t *flagsp = (const uint16_t *)(ondisk->data + hashsz);
-	unsigned int flags;
+	enum cache_entry_flags flags;
 	size_t copy_len = 0;
 	/*
 	 * Adjacent cache entries tend to share the leading paths, so it makes
@@ -1791,7 +1791,7 @@ static struct cache_entry *create_from_disk(struct mem_pool *ce_mem_pool,
 	len = flags & CE_NAMEMASK;
 
 	if (flags & CE_EXTENDED) {
-		int extended_flags;
+		enum cache_entry_flags extended_flags;
 		extended_flags = get_be16(flagsp + 1) << 16;
 		/* We do not yet understand any bit out of CE_EXTENDED_FLAGS */
 		if (extended_flags & ~CE_EXTENDED_FLAGS)

@@ -194,10 +194,10 @@ void merge_base_index(struct index_state *istate)
  */
 static int compare_ce_content(struct cache_entry *a, struct cache_entry *b)
 {
-	const unsigned int ondisk_flags = CE_STAGEMASK | CE_VALID |
-					  CE_EXTENDED_FLAGS;
-	unsigned int ce_flags = a->ce_flags;
-	unsigned int base_flags = b->ce_flags;
+	const enum cache_entry_flags ondisk_flags = CE_STAGEMASK | CE_VALID |
+						    CE_EXTENDED_FLAGS;
+	enum cache_entry_flags ce_flags = a->ce_flags;
+	enum cache_entry_flags base_flags = b->ce_flags;
 	int ret;
 
 	/* only on-disk flags matter */

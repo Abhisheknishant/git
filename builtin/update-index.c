@@ -227,7 +227,7 @@ done:
 	return ret;
 }
 
-static int mark_ce_flags(const char *path, int flag, int mark)
+static int mark_ce_flags(const char *path, enum cache_entry_flags flag, int mark)
 {
 	int namelen = strlen(path);
 	int pos = cache_name_pos(path, namelen);

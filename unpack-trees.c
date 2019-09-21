@@ -190,7 +190,8 @@ void clear_unpack_trees_porcelain(struct unpack_trees_options *opts)
 }
 
 static int do_add_entry(struct unpack_trees_options *o, struct cache_entry *ce,
-			 unsigned int set, unsigned int clear)
+			enum cache_entry_flags set,
+			enum cache_entry_flags clear)
 {
 	clear |= CE_HASHED;
 
@@ -204,7 +205,7 @@ static int do_add_entry(struct unpack_trees_options *o, struct cache_entry *ce,
 
 static void add_entry(struct unpack_trees_options *o,
 		      const struct cache_entry *ce,
-		      unsigned int set, unsigned int clear)
+		      enum cache_entry_flags set, enum cache_entry_flags clear)
 {
 	do_add_entry(o, dup_cache_entry(ce, &o->result), set, clear);
 }
@@ -1271,7 +1272,8 @@ static int unpack_callback(int n, unsigned long mask, unsigned long dirmask, str
 static int clear_ce_flags_1(struct index_state *istate,
 			    struct cache_entry **cache, int nr,
 			    struct strbuf *prefix,
-			    int select_mask, int clear_mask,
+			    enum cache_entry_flags select_mask,
+			    enum cache_entry_flags clear_mask,
 			    struct pattern_list *pl,
 			    enum pattern_match_result default_match,
 			    int progress_nr);
@@ -1281,7 +1283,8 @@ static int clear_ce_flags_dir(struct index_state *istate,
 			      struct cache_entry **cache, int nr,
 			      struct strbuf *prefix,
 			      char *basename,
-			      int select_mask, int clear_mask,
+			      enum cache_entry_flags select_mask,
+			      enum cache_entry_flags clear_mask,
 			      struct pattern_list *pl,
 			      enum pattern_match_result default_match,
 			      int progress_nr)
@@ -1347,7 +1350,8 @@ static int clear_ce_flags_dir(struct index_state *istate,
 static int clear_ce_flags_1(struct index_state *istate,
 			    struct cache_entry **cache, int nr,
 			    struct strbuf *prefix,
-			    int select_mask, int clear_mask,
+			    enum cache_entry_flags select_mask,
+			    enum cache_entry_flags clear_mask,
 			    struct pattern_list *pl,
 			    enum pattern_match_result default_match,
 			    int progress_nr)
@@ -1431,7 +1435,8 @@ static int clear_ce_flags_1(struct index_state *istate,
 }
 
 static int clear_ce_flags(struct index_state *istate,
-			  int select_mask, int clear_mask,
+			  enum cache_entry_flags select_mask,
+			  enum cache_entry_flags clear_mask,
 			  struct pattern_list *pl,
 			  int show_progress)
 {
@@ -1465,7 +1470,8 @@ static int clear_ce_flags(struct index_state *istate,
  */
 static void mark_new_skip_worktree(struct pattern_list *pl,
 				   struct index_state *istate,
-				   int select_flag, int skip_wt_flag,
+				   enum cache_entry_flags select_flag,
+				   enum cache_entry_flags skip_wt_flag,
 				   int show_progress)
 {
 	int i;
@@ -2041,7 +2047,7 @@ static int merged_entry(const struct cache_entry *ce,
 			const struct cache_entry *old,
 			struct unpack_trees_options *o)
 {
-	int update = CE_UPDATE;
+	enum cache_entry_flags update = CE_UPDATE;
 	struct cache_entry *merge = dup_cache_entry(ce, &o->result);
 
 	if (!old) {
@@ -2435,7 +2441,7 @@ int oneway_merge(const struct cache_entry * const *src,
 		return deleted_entry(old, old, o);
 
 	if (old && same(old, a)) {
-		int update = 0;
+		enum cache_entry_flags update = 0;
 		if (o->reset && o->update && !ce_uptodate(old) && !ce_skip_worktree(old) &&
 			!(old->ce_flags & CE_FSMONITOR_VALID)) {
 			struct stat st;
