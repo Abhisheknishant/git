@@ -140,6 +140,8 @@ struct stat_data {
 };
 
 #define CE_STAGESHIFT 12
+#define CE_INTENT_TO_ADD_VALUE (1 << 29)
+#define CE_SKIP_WORKTREE_VALUE (1 << 30)
 
 enum cache_entry_flags {
 	CE_STAGEMASK         = (1 << CE_STAGESHIFT | 1 << (CE_STAGESHIFT + 1)),
@@ -177,12 +179,17 @@ enum cache_entry_flags {
 	/*
 	 * Extended on-disk flags
 	 */
-	CE_INTENT_TO_ADD     = (1 << 29),
-	CE_SKIP_WORKTREE     = (1 << 30),
-	CE_EXTENDED_FLAGS    = (CE_INTENT_TO_ADD | CE_SKIP_WORKTREE),
-	/* CE_EXTENDED2 is for future extension */
-	CE_EXTENDED2         = (1U << 31),
+	CE_INTENT_TO_ADD     = CE_INTENT_TO_ADD_VALUE,
+	CE_SKIP_WORKTREE     = CE_SKIP_WORKTREE_VALUE,
 };
+
+#define CE_EXTENDED_FLAGS    (CE_INTENT_TO_ADD_VALUE | CE_SKIP_WORKTREE_VALUE)
+
+/*
+ * CE_EXTENDED2 is for future extension.
+ * Keep it out from the enum
+ */
+#define CE_EXTENDED2         (1U << 31)
 
 /*
  * Safeguard to avoid saving wrong flags:
