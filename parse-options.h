@@ -12,6 +12,7 @@ enum parse_opt_type {
 	OPTION_GROUP,
 	OPTION_NUMBER,
 	OPTION_ALIAS,
+	OPTION_SUBCOMMAND,
 	/* options with no arguments */
 	OPTION_BIT,
 	OPTION_NEGBIT,
@@ -33,7 +34,8 @@ enum parse_opt_flags {
 	PARSE_OPT_KEEP_ARGV0 = 4,
 	PARSE_OPT_KEEP_UNKNOWN = 8,
 	PARSE_OPT_NO_INTERNAL_HELP = 16,
-	PARSE_OPT_ONE_SHOT = 32
+	PARSE_OPT_ONE_SHOT = 32,
+	PARSE_OPT_SUBCOMMAND_OPTIONAL = 64,
 };
 
 enum parse_opt_option_flags {
@@ -56,6 +58,7 @@ enum parse_opt_result {
 	PARSE_OPT_ERROR = -1,	/* must be the same as error() */
 	PARSE_OPT_DONE = 0,	/* fixed so that "return 0" works */
 	PARSE_OPT_NON_OPTION,
+	PARSE_OPT_SUBCOMMAND,
 	PARSE_OPT_UNKNOWN
 };
 
@@ -67,6 +70,9 @@ typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
 					      const struct option *opt,
 					      const char *arg, int unset);
 
+typedef int parse_opt_subcommand_fn(int argc, const char **argv,
+				    const char *prefix);
+
 /*
  * `type`::
  *   holds the type of the option, you must have an OPTION_END last in your
@@ -76,7 +82,8 @@ typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
  *   the character to use as a short option name, '\0' if none.
  *
  * `long_name`::
- *   the long option name, without the leading dashes, NULL if none.
+ *   the long option (without the leading dashes) or subcommand name,
+ *   NULL if none.
  *
  * `value`::
  *   stores pointers to the values to be filled.
@@ -88,7 +95,7 @@ typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
  *
  * `help`::
  *   the short help associated to what the option does.
- *   Must never be NULL (except for OPTION_END).
+ *   Must never be NULL (except for OPTION_END and OPTION_SUBCOMMAND).
  *   OPTION_GROUP uses this pointer to store the group header.
  *   Should be wrapped by N_() for translation.
  *
@@ -126,6 +133,9 @@ typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
  * `ll_callback`::
  *   pointer to the callback to use for OPTION_LOWLEVEL_CALLBACK
  *
+ * `subcommand_fn`::
+ *   pointer to a function to use for OPTION_SUBCOMMAND.
+ *   It will be put in value when the subcommand is given on the command line.
  */
 struct option {
 	enum parse_opt_type type;
@@ -140,7 +150,33 @@ struct option {
 	intptr_t defval;
 	parse_opt_ll_cb *ll_callback;
 	intptr_t extra;
+	parse_opt_subcommand_fn *subcommand_fn;
 };
+
+/*
+ * Subcommands are special in a couple of ways:
+ *
+ *   - Subcommands are sort of like long options without the double dash
+ *     prefix.
+ *   - There can be only one subcommand, or zero if parse_options() is
+ *     invoked with the PARSE_OPT_SUBCOMMAND_OPTIONAL flag.
+ *   - Any arguments following the subcommand are considered to be
+ *     arguments of the subcommand and not the "main" git command.
+ *
+ * Therefore, if the options array contains at least one subcommand and
+ * parse_options() encounters the first dashless argument, it will:
+ *   - stop and return if that dashless argument is a known subcommand,
+ *     setting 'value' to the function pointer associated with that
+ *     subcommand, or
+ *   - stop and return, leaving 'value' unchanged, if it's an unknown
+ *     dashless argument and it was invoked with the
+ *     PARSE_OPT_SUBCOMMAND_OPTIONAL flag, or
+ *   - show usage and abort.
+ */
+#define OPT_SUBCOMMAND(l, v, fn)      { OPTION_SUBCOMMAND, 0, (l), (v), NULL, \
+					NULL, 0, NULL, 0, NULL, 0, (fn) }
+#define OPT_SUBCOMMAND_F(l, v, fn, f) { OPTION_SUBCOMMAND, 0, (l), (v), NULL, \
+					NULL, (f), NULL, 0, NULL, 0, (fn) }
 
 #define OPT_BIT_F(s, l, v, h, b, f) { OPTION_BIT, (s), (l), (v), NULL, (h), \
 				      PARSE_OPT_NOARG|(f), NULL, (b) }
@@ -266,6 +302,8 @@ struct parse_opt_ctx_t {
 	int argc, cpidx, total;
 	const char *opt;
 	enum parse_opt_flags flags;
+	unsigned has_subcommands:1,
+		 kept_unknown:1;
 	const char *prefix;
 	const char **alias_groups; /* must be in groups of 3 elements! */
 	struct option *updated_options;
