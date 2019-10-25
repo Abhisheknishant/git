@@ -3133,12 +3133,26 @@ _git_worktree ()
 
 __git_complete_common () {
 	local command="$1"
+	local subcommands
 
-	case "$cur" in
-	--*)
-		__gitcomp_builtin "$command"
-		;;
-	esac
+	__git_get_builtin_subcommands "$command"
+	if [ -n "$subcommands" ]; then
+		local subcommand="$(__git_find_on_cmdline "$subcommands")"
+		case "$subcommand,$cur" in
+		,*)
+			__gitcomp_builtin "$command"
+			;;
+		*,--*)
+			__gitcomp_builtin "$command"_"$subcommand"
+			;;
+		esac
+	else
+		case "$cur" in
+		--*)
+			__gitcomp_builtin "$command"
+			;;
+		esac
+	fi
 }
 
 __git_cmds_with_parseopt_helper=
