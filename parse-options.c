@@ -494,7 +494,8 @@ static void parse_options_check(const struct option *opts)
 
 static void parse_options_start_1(struct parse_opt_ctx_t *ctx,
 				  int argc, const char **argv, const char *prefix,
-				  const struct option *options, int flags)
+				  const struct option *options,
+				  enum parse_opt_flags flags)
 {
 	ctx->argc = argc;
 	ctx->argv = argv;
@@ -519,7 +520,8 @@ static void parse_options_start_1(struct parse_opt_ctx_t *ctx,
 
 void parse_options_start(struct parse_opt_ctx_t *ctx,
 			 int argc, const char **argv, const char *prefix,
-			 const struct option *options, int flags)
+			 const struct option *options,
+			 enum parse_opt_flags flags)
 {
 	memset(ctx, 0, sizeof(*ctx));
 	parse_options_start_1(ctx, argc, argv, prefix, options, flags);
@@ -830,7 +832,7 @@ int parse_options_end(struct parse_opt_ctx_t *ctx)
 
 int parse_options(int argc, const char **argv, const char *prefix,
 		  const struct option *options, const char * const usagestr[],
-		  int flags)
+		  enum parse_opt_flags flags)
 {
 	struct parse_opt_ctx_t ctx;
 	struct option *real_options;
