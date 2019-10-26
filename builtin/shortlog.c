@@ -291,8 +291,9 @@ int cmd_shortlog(int argc, const char **argv, const char *prefix)
 			exit(0);
 		case PARSE_OPT_DONE:
 			goto parse_done;
+		default:
+			parse_revision_opt(&rev, &ctx, options, shortlog_usage);
 		}
-		parse_revision_opt(&rev, &ctx, options, shortlog_usage);
 	}
 parse_done:
 	argc = parse_options_end(&ctx);
