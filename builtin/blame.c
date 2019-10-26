@@ -902,13 +902,16 @@ int cmd_blame(int argc, const char **argv, const char *prefix)
 			if (ctx.argv[0])
 				dashdash_pos = ctx.cpidx;
 			goto parse_done;
+		case PARSE_OPT_UNKNOWN:
+			if (!strcmp(ctx.argv[0], "--reverse")) {
+				ctx.argv[0] = "--children";
+				reverse = 1;
+			}
+			/* fallthrough */
+		default:
+			parse_revision_opt(&revs, &ctx, options,
+					   blame_opt_usage);
 		}
-
-		if (!strcmp(ctx.argv[0], "--reverse")) {
-			ctx.argv[0] = "--children";
-			reverse = 1;
-		}
-		parse_revision_opt(&revs, &ctx, options, blame_opt_usage);
 	}
 parse_done:
 	no_whole_file_rename = !revs.diffopt.flags.follow_renames;
