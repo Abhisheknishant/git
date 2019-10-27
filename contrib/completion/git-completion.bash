@@ -2622,24 +2622,14 @@ _git_config ()
 
 _git_remote ()
 {
-	local subcommands="
-		add rename remove set-head set-branches
-		get-url set-url show prune update
-		"
-	local subcommand="$(__git_find_on_cmdline "$subcommands")"
-	if [ -z "$subcommand" ]; then
-		case "$cur" in
-		--*)
-			__gitcomp_builtin remote
-			;;
-		*)
-			__gitcomp "$subcommands"
-			;;
-		esac
-		return
-	fi
+	local subcommands subcommand
 
+	__git_get_builtin_subcommands remote
+	subcommand="$(__git_find_on_cmdline "$subcommands")"
 	case "$subcommand,$cur" in
+	,*)
+		__gitcomp_builtin remote
+		;;
 	*,--*)
 		__gitcomp_builtin remote_$subcommand
 		;;
