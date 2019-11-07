@@ -169,11 +169,11 @@ static int check_branch_commit(const char *branchname, const char *refname,
 {
 	struct commit *rev = lookup_commit_reference(the_repository, oid);
 	if (!rev) {
-		error(_("Couldn't look up commit object for '%s'"), refname);
+		error(_("couldn't look up commit object for '%s'"), refname);
 		return -1;
 	}
 	if (!force && !branch_merged(kinds, branchname, rev, head_rev)) {
-		error(_("The branch '%s' is not fully merged.\n"
+		error(_("the branch '%s' is not fully merged.\n"
 		      "If you are sure you want to delete it, "
 		      "run 'git branch -D %s'."), branchname, branchname);
 		return -1;
@@ -186,7 +186,7 @@ static void delete_branch_config(const char *branchname)
 	struct strbuf buf = STRBUF_INIT;
 	strbuf_addf(&buf, "branch.%s", branchname);
 	if (git_config_rename_section(buf.buf, NULL) < 0)
-		warning(_("Update of config-file failed"));
+		warning(_("update of config-file failed"));
 	strbuf_release(&buf);
 }
 
@@ -223,7 +223,7 @@ static int delete_branches(int argc, const char **argv, int force, int kinds,
 	if (!force) {
 		head_rev = lookup_commit_reference(the_repository, &head_oid);
 		if (!head_rev)
-			die(_("Couldn't look up commit object for HEAD"));
+			die(_("couldn't look up commit object for HEAD"));
 	}
 	for (i = 0; i < argc; i++, strbuf_reset(&bname)) {
 		char *target = NULL;
@@ -237,7 +237,7 @@ static int delete_branches(int argc, const char **argv, int force, int kinds,
 			const struct worktree *wt =
 				find_shared_symref("HEAD", name);
 			if (wt) {
-				error(_("Cannot delete branch '%s' "
+				error(_("cannot delete branch '%s' "
 					"checked out at '%s'"),
 				      bname.buf, wt->path);
 				ret = 1;
@@ -268,8 +268,8 @@ static int delete_branches(int argc, const char **argv, int force, int kinds,
 		if (delete_ref(NULL, name, is_null_oid(&oid) ? NULL : &oid,
 			       REF_NO_DEREF)) {
 			error(remote_branch
-			      ? _("Error deleting remote-tracking branch '%s'")
-			      : _("Error deleting branch '%s'"),
+			      ? _("error deleting remote-tracking branch '%s'")
+			      : _("error deleting branch '%s'"),
 			      bname.buf);
 			ret = 1;
 			goto next;
@@ -478,11 +478,11 @@ static void reject_rebase_or_bisect_branch(const char *target)
 			continue;
 
 		if (is_worktree_being_rebased(wt, target))
-			die(_("Branch %s is being rebased at %s"),
+			die(_("branch %s is being rebased at %s"),
 			    target, wt->path);
 
 		if (is_worktree_being_bisected(wt, target))
-			die(_("Branch %s is being bisected at %s"),
+			die(_("branch %s is being bisected at %s"),
 			    target, wt->path);
 	}
 
@@ -512,7 +512,7 @@ static void copy_or_rename_branch(const char *oldname, const char *newname, int 
 		if (ref_exists(oldref.buf))
 			recovery = 1;
 		else
-			die(_("Invalid branch name: '%s'"), oldname);
+			die(_("invalid branch name: '%s'"), oldname);
 	}
 
 	/*
@@ -539,22 +539,22 @@ static void copy_or_rename_branch(const char *oldname, const char *newname, int 
 			    oldref.buf, newref.buf);
 
 	if (!copy && rename_ref(oldref.buf, newref.buf, logmsg.buf))
-		die(_("Branch rename failed"));
+		die(_("branch rename failed"));
 	if (copy && copy_existing_ref(oldref.buf, newref.buf, logmsg.buf))
-		die(_("Branch copy failed"));
+		die(_("branch copy failed"));
 
 	if (recovery) {
 		if (copy)
-			warning(_("Created a copy of a misnamed branch '%s'"),
+			warning(_("created a copy of a misnamed branch '%s'"),
 				interpreted_oldname);
 		else
-			warning(_("Renamed a misnamed branch '%s' away"),
+			warning(_("renamed a misnamed branch '%s' away"),
 				interpreted_oldname);
 	}
 
 	if (!copy &&
 	    replace_each_worktree_head_symref(oldref.buf, newref.buf, logmsg.buf))
-		die(_("Branch renamed to %s, but HEAD is not updated!"), newname);
+		die(_("branch renamed to %s, but HEAD is not updated!"), newname);
 
 	strbuf_release(&logmsg);
 
@@ -563,9 +563,9 @@ static void copy_or_rename_branch(const char *oldname, const char *newname, int 
 	strbuf_addf(&newsection, "branch.%s", interpreted_newname);
 	strbuf_release(&newref);
 	if (!copy && git_config_rename_section(oldsection.buf, newsection.buf) < 0)
-		die(_("Branch is renamed, but update of config-file failed"));
+		die(_("branch is renamed, but update of config-file failed"));
 	if (copy && strcmp(oldname, newname) && git_config_copy_section(oldsection.buf, newsection.buf) < 0)
-		die(_("Branch is copied, but update of config-file failed"));
+		die(_("branch is copied, but update of config-file failed"));
 	strbuf_release(&oldsection);
 	strbuf_release(&newsection);
 }
@@ -677,7 +677,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 
 	head = resolve_refdup("HEAD", 0, &head_oid, NULL);
 	if (!head)
-		die(_("Failed to resolve HEAD as a valid ref."));
+		die(_("failed to resolve HEAD as a valid ref."));
 	if (!strcmp(head, "HEAD"))
 		filter.detached = 1;
 	else if (!skip_prefix(head, "refs/heads/", &head))
@@ -750,7 +750,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 
 		if (!argc) {
 			if (filter.detached)
-				die(_("Cannot give description to detached HEAD"));
+				die(_("cannot give description to detached HEAD"));
 			branch_name = head;
 		} else if (argc == 1)
 			branch_name = argv[0];
@@ -762,10 +762,10 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 			strbuf_release(&branch_ref);
 
 			if (!argc)
-				return error(_("No commit on branch '%s' yet."),
+				return error(_("no commit on branch '%s' yet."),
 					     branch_name);
 			else
-				return error(_("No branch named '%s'."),
+				return error(_("no branch named '%s'."),
 					     branch_name);
 		}
 		strbuf_release(&branch_ref);
@@ -828,7 +828,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 		}
 
 		if (!branch_has_merge_config(branch))
-			die(_("Branch '%s' has no upstream information"), branch->name);
+			die(_("branch '%s' has no upstream information"), branch->name);
 
 		strbuf_addf(&buf, "branch.%s.remote", branch->name);
 		git_config_set_multivar(buf.buf, NULL, NULL, 1);
@@ -838,7 +838,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 		strbuf_release(&buf);
 	} else if (argc > 0 && argc <= 2) {
 		if (filter.kind != FILTER_REFS_BRANCHES)
-			die(_("The -a, and -r, options to 'git branch' do not take a branch name.\n"
+			die(_("the -a, and -r, options to 'git branch' do not take a branch name.\n"
 				  "Did you mean to use: -a|-r --list <pattern>?"));
 
 		if (track == BRANCH_TRACK_OVERRIDE)
