@@ -56,6 +56,12 @@ osx-clang|osx-gcc)
 		;;
 	esac
 	;;
+s390x)
+	sudo apt-get -q update
+	sudo apt-get -q -y install libcurl4-openssl-dev libssl-dev \
+		libexpat-dev gettext language-pack-is libsvn-perl apache2 \
+		acl libio-pty-perl libjson-perl libhttp-date-perl time
+	;;
 StaticAnalysis)
 	sudo apt-get -q update
 	sudo apt-get -q -y install coccinelle libcurl4-openssl-dev libssl-dev \

@@ -33,6 +33,10 @@ matrix:
         - docker
       before_install:
       script: ci/run-linux32-docker.sh
+    - env: jobname=s390x
+      arch: s390x
+      os: linux
+      compiler:
     - env: jobname=StaticAnalysis
       os: linux
       compiler:

@@ -198,6 +198,10 @@ osx-clang|osx-gcc)
 GIT_TEST_GETTEXT_POISON)
 	export GIT_TEST_GETTEXT_POISON=true
 	;;
+s390x)
+	# t5319-multi-pack-index.sh is very flaky on s390x.
+	export GIT_SKIP_TESTS=t5319
+	;;
 esac
 
 MAKEFLAGS="$MAKEFLAGS CC=${CC:-cc}"
