@@ -1,0 +1,23 @@
+language: c
+
+cache:
+  directories:
+    - $HOME/travis-cache
+
+os: linux
+dist: xenial
+
+arch:
+  - amd64
+  - arm64
+  - s390x
+  - ppc64le
+
+matrix:
+  include:
+    - os: osx
+
+script: ci/timestamp.sh
+
+notifications:
+  email: false
