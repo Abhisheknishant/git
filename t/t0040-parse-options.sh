@@ -7,58 +7,57 @@ test_description='our own option parser'
 
 . ./test-lib.sh
 
-cat >expect <<\EOF
-usage: test-tool parse-options <options>
-
-    A helper function for the parse-options API.
-
-    --yes                 get a boolean
-    -D, --no-doubt        begins with 'no-'
-    -B, --no-fear         be brave
-    -b, --boolean         increment by one
-    -4, --or4             bitwise-or boolean with ...0100
-    --neg-or4             same as --no-or4
-
-    -i, --integer <n>     get a integer
-    -j <n>                get a integer, too
-    -m, --magnitude <n>   get a magnitude
-    --set23               set integer to 23
-    --mode1               set integer to 1 (cmdmode option)
-    --mode2               set integer to 2 (cmdmode option)
-    -L, --length <str>    get length of <str>
-    -F, --file <file>     set file to <file>
-
-String options
-    -s, --string <string>
-                          get a string
-    --string2 <str>       get another string
-    --st <st>             get another string (pervert ordering)
-    -o <str>              get another string
-    --list <str>          add str to list
-
-Magic arguments
-    --quux                means --quux
-    -NUM                  set integer to NUM
-    +                     same as -b
-    --ambiguous           positive ambiguity
-    --no-ambiguous        negative ambiguity
-
-Standard options
-    --abbrev[=<n>]        use <n> digits to display SHA-1s
-    -v, --verbose         be verbose
-    -n, --dry-run         dry run
-    -q, --quiet           be quiet
-    --expect <string>     expected output in the variable dump
-
-Alias
-    -A, --alias-source <string>
-                          get a string
-    -Z, --alias-target <string>
-                          get a string
-
-EOF
-
 test_expect_success 'test help' '
+	cat >expect <<-\EOF &&
+	usage: test-tool parse-options <options>
+
+	    A helper function for the parse-options API.
+
+	    --yes                 get a boolean
+	    -D, --no-doubt        begins with '\''no-'\''
+	    -B, --no-fear         be brave
+	    -b, --boolean         increment by one
+	    -4, --or4             bitwise-or boolean with ...0100
+	    --neg-or4             same as --no-or4
+
+	    -i, --integer <n>     get a integer
+	    -j <n>                get a integer, too
+	    -m, --magnitude <n>   get a magnitude
+	    --set23               set integer to 23
+	    --mode1               set integer to 1 (cmdmode option)
+	    --mode2               set integer to 2 (cmdmode option)
+	    -L, --length <str>    get length of <str>
+	    -F, --file <file>     set file to <file>
+
+	String options
+	    -s, --string <string>
+	                          get a string
+	    --string2 <str>       get another string
+	    --st <st>             get another string (pervert ordering)
+	    -o <str>              get another string
+	    --list <str>          add str to list
+
+	Magic arguments
+	    --quux                means --quux
+	    -NUM                  set integer to NUM
+	    +                     same as -b
+	    --ambiguous           positive ambiguity
+	    --no-ambiguous        negative ambiguity
+
+	Standard options
+	    --abbrev[=<n>]        use <n> digits to display SHA-1s
+	    -v, --verbose         be verbose
+	    -n, --dry-run         dry run
+	    -q, --quiet           be quiet
+	    --expect <string>     expected output in the variable dump
+
+	Alias
+	    -A, --alias-source <string>
+	                          get a string
+	    -Z, --alias-target <string>
+	                          get a string
+
+	EOF
 	test_must_fail test-tool parse-options -h >output 2>output.err &&
 	test_must_be_empty output.err &&
 	test_i18ncmp expect output
@@ -126,40 +125,38 @@ test_expect_success 'OPT_MAGNITUDE() 3giga' '
 	check magnitude: 3221225472 -m 3g
 '
 
-cat >expect <<\EOF
-boolean: 2
-integer: 1729
-magnitude: 16384
-timestamp: 0
-string: 123
-abbrev: 7
-verbose: 2
-quiet: 0
-dry run: yes
-file: prefix/my.file
-EOF
-
 test_expect_success 'short options' '
+	cat >expect <<-\EOF &&
+	boolean: 2
+	integer: 1729
+	magnitude: 16384
+	timestamp: 0
+	string: 123
+	abbrev: 7
+	verbose: 2
+	quiet: 0
+	dry run: yes
+	file: prefix/my.file
+	EOF
 	test-tool parse-options -s123 -b -i 1729 -m 16k -b -vv -n -F my.file \
 	>output 2>output.err &&
 	test_cmp expect output &&
 	test_must_be_empty output.err
 '
 
-cat >expect <<\EOF
-boolean: 2
-integer: 1729
-magnitude: 16384
-timestamp: 0
-string: 321
-abbrev: 10
-verbose: 2
-quiet: 0
-dry run: no
-file: prefix/fi.le
-EOF
-
 test_expect_success 'long options' '
+	cat >expect <<-\EOF &&
+	boolean: 2
+	integer: 1729
+	magnitude: 16384
+	timestamp: 0
+	string: 321
+	abbrev: 10
+	verbose: 2
+	quiet: 0
+	dry run: no
+	file: prefix/fi.le
+	EOF
 	test-tool parse-options --boolean --integer 1729 --magnitude 16k \
 		--boolean --string2=321 --verbose --verbose --no-dry-run \
 		--abbrev=10 --file fi.le --obsolete \
@@ -174,43 +171,41 @@ test_expect_success 'missing required value' '
 	test_expect_code 129 test-tool parse-options --file
 '
 
-cat >expect <<\EOF
-boolean: 1
-integer: 13
-magnitude: 0
-timestamp: 0
-string: 123
-abbrev: 7
-verbose: -1
-quiet: 0
-dry run: no
-file: (not set)
-arg 00: a1
-arg 01: b1
-arg 02: --boolean
-EOF
-
 test_expect_success 'intermingled arguments' '
+	cat >expect <<-\EOF &&
+	boolean: 1
+	integer: 13
+	magnitude: 0
+	timestamp: 0
+	string: 123
+	abbrev: 7
+	verbose: -1
+	quiet: 0
+	dry run: no
+	file: (not set)
+	arg 00: a1
+	arg 01: b1
+	arg 02: --boolean
+	EOF
 	test-tool parse-options a1 --string 123 b1 --boolean -j 13 -- --boolean \
 		>output 2>output.err &&
 	test_must_be_empty output.err &&
 	test_cmp expect output
 '
 
-cat >expect <<\EOF
-boolean: 0
-integer: 2
-magnitude: 0
-timestamp: 0
-string: (not set)
-abbrev: 7
-verbose: -1
-quiet: 0
-dry run: no
-file: (not set)
-EOF
-
 test_expect_success 'unambiguously abbreviated option' '
+	cat >expect <<-\EOF &&
+	boolean: 0
+	integer: 2
+	magnitude: 0
+	timestamp: 0
+	string: (not set)
+	abbrev: 7
+	verbose: -1
+	quiet: 0
+	dry run: no
+	file: (not set)
+	EOF
 	GIT_TEST_DISALLOW_ABBREVIATED_OPTIONS=false \
 	test-tool parse-options --int 2 --boolean --no-bo >output 2>output.err &&
 	test_must_be_empty output.err &&
@@ -243,11 +238,11 @@ test_expect_success 'Alias options do not contribute to abbreviation' '
 	grep "^string: 123" output
 '
 
-cat >typo.err <<\EOF
-error: did you mean `--boolean` (with two dashes)?
-EOF
-
 test_expect_success 'detect possible typos' '
+	cat >typo.err <<-\EOF &&
+	error: did you mean `--boolean` (with two dashes)?
+	EOF
+
 	test_must_fail test-tool parse-options -boolean >output 2>output.err &&
 	test_must_be_empty output &&
 	test_i18ncmp typo.err output.err
@@ -258,6 +253,9 @@ error: did you mean `--ambiguous` (with two dashes)?
 EOF
 
 test_expect_success 'detect possible typos' '
+	cat >typo.err <<-\EOF &&
+	error: did you mean `--ambiguous` (with two dashes)?
+	EOF
 	test_must_fail test-tool parse-options -ambiguous >output 2>output.err &&
 	test_must_be_empty output &&
 	test_i18ncmp typo.err output.err
@@ -267,21 +265,20 @@ test_expect_success 'keep some options as arguments' '
 	test-tool parse-options --expect="arg 00: --quux" --quux
 '
 
-cat >expect <<\EOF
-Callback: "four", 0
-boolean: 5
-integer: 4
-magnitude: 0
-timestamp: 0
-string: (not set)
-abbrev: 7
-verbose: -1
-quiet: 0
-dry run: no
-file: (not set)
-EOF
-
 test_expect_success 'OPT_CALLBACK() and OPT_BIT() work' '
+	cat >expect <<-\EOF &&
+	Callback: "four", 0
+	boolean: 5
+	integer: 4
+	magnitude: 0
+	timestamp: 0
+	string: (not set)
+	abbrev: 7
+	verbose: -1
+	quiet: 0
+	dry run: no
+	file: (not set)
+	EOF
 	test-tool parse-options --length=four -b -4 >output 2>output.err &&
 	test_must_be_empty output.err &&
 	test_cmp expect output
@@ -293,20 +290,19 @@ test_expect_success 'OPT_CALLBACK() and callback errors work' '
 	test_must_be_empty output.err
 '
 
-cat >expect <<\EOF
-boolean: 1
-integer: 23
-magnitude: 0
-timestamp: 0
-string: (not set)
-abbrev: 7
-verbose: -1
-quiet: 0
-dry run: no
-file: (not set)
-EOF
-
 test_expect_success 'OPT_BIT() and OPT_SET_INT() work' '
+	cat >expect <<-\EOF &&
+	boolean: 1
+	integer: 23
+	magnitude: 0
+	timestamp: 0
+	string: (not set)
+	abbrev: 7
+	verbose: -1
+	quiet: 0
+	dry run: no
+	file: (not set)
+	EOF
 	test-tool parse-options --set23 -bbbbb --no-or4 >output 2>output.err &&
 	test_must_be_empty output.err &&
 	test_cmp expect output
@@ -350,32 +346,31 @@ test_expect_success 'OPT_NUMBER_CALLBACK() works' '
 	test-tool parse-options --expect="integer: 12345" -12345
 '
 
-cat >expect <<\EOF
-boolean: 0
-integer: 0
-magnitude: 0
-timestamp: 0
-string: (not set)
-abbrev: 7
-verbose: -1
-quiet: 0
-dry run: no
-file: (not set)
-EOF
-
 test_expect_success 'negation of OPT_NONEG flags is not ambiguous' '
+	cat >expect <<-\EOF &&
+	boolean: 0
+	integer: 0
+	magnitude: 0
+	timestamp: 0
+	string: (not set)
+	abbrev: 7
+	verbose: -1
+	quiet: 0
+	dry run: no
+	file: (not set)
+	EOF
 	GIT_TEST_DISALLOW_ABBREVIATED_OPTIONS=false \
 	test-tool parse-options --no-ambig >output 2>output.err &&
 	test_must_be_empty output.err &&
 	test_cmp expect output
 '
 
-cat >>expect <<\EOF
-list: foo
-list: bar
-list: baz
-EOF
 test_expect_success '--list keeps list of strings' '
+	cat >>expect <<-\EOF &&
+	list: foo
+	list: bar
+	list: baz
+	EOF
 	test-tool parse-options --list foo --list=bar --list=baz >output &&
 	test_cmp expect output
 '
