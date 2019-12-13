@@ -761,29 +761,27 @@ static int cmd_reflog_exists(int argc, const char **argv, const char *prefix)
  * main "reflog"
  */
 
-static const char reflog_usage[] =
-N_("git reflog [ show | expire | delete | exists ]");
+static const char * const reflog_usage[] = {
+	N_("git reflog [ show | expire | delete | exists ]"),
+	NULL
+};
 
 int cmd_reflog(int argc, const char **argv, const char *prefix)
 {
-	if (argc > 1 && !strcmp(argv[1], "-h"))
-		usage(_(reflog_usage));
+	parse_opt_subcommand_fn *fn = NULL;
+	struct option options[] = {
+		OPT_SUBCOMMAND("show", &fn, cmd_log_reflog),
+		OPT_SUBCOMMAND("expire", &fn, cmd_reflog_expire),
+		OPT_SUBCOMMAND("delete", &fn, cmd_reflog_delete),
+		OPT_SUBCOMMAND("exists", &fn, cmd_reflog_exists),
+		OPT_END()
+	};
 
-	/* With no command, we default to showing it. */
-	if (argc < 2 || *argv[1] == '-')
+	argc = parse_options(argc, argv, prefix, options, reflog_usage,
+			     PARSE_OPT_SUBCOMMAND_OPTIONAL |
+			     PARSE_OPT_KEEP_UNKNOWN | PARSE_OPT_KEEP_ARGV0);
+	if (fn)
+		return fn(argc - 1, argv + 1, prefix);
+	else
 		return cmd_log_reflog(argc, argv, prefix);
-
-	if (!strcmp(argv[1], "show"))
-		return cmd_log_reflog(argc - 1, argv + 1, prefix);
-
-	if (!strcmp(argv[1], "expire"))
-		return cmd_reflog_expire(argc - 1, argv + 1, prefix);
-
-	if (!strcmp(argv[1], "delete"))
-		return cmd_reflog_delete(argc - 1, argv + 1, prefix);
-
-	if (!strcmp(argv[1], "exists"))
-		return cmd_reflog_exists(argc - 1, argv + 1, prefix);
-
-	return cmd_log_reflog(argc, argv, prefix);
 }
