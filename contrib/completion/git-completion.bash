@@ -2798,63 +2798,43 @@ _git_sparse_checkout ()
 
 _git_stash ()
 {
-	local save_opts='--all --keep-index --no-keep-index --quiet --patch --include-untracked'
 	local subcommands='push list show apply clear drop pop create branch'
 	local subcommand="$(__git_find_on_cmdline "$subcommands save")"
 	if [ -n "$(__git_find_on_cmdline "-p")" ]; then
 		subcommand="push"
 	fi
-	if [ -z "$subcommand" ]; then
-		case "$cur" in
-		--*)
-			__gitcomp "$save_opts"
-			;;
-		sa*)
-			if [ -z "$(__git_find_on_cmdline "$save_opts")" ]; then
-				__gitcomp "save"
-			fi
-			;;
-		*)
-			if [ -z "$(__git_find_on_cmdline "$save_opts")" ]; then
-				__gitcomp "$subcommands"
-			fi
-			;;
-		esac
-	else
-		case "$subcommand,$cur" in
-		push,--*)
-			__gitcomp "$save_opts --message"
-			;;
-		save,--*)
-			__gitcomp "$save_opts"
-			;;
-		apply,--*|pop,--*)
-			__gitcomp "--index --quiet"
-			;;
-		drop,--*)
-			__gitcomp "--quiet"
-			;;
-		list,--*)
-			__gitcomp "--name-status --oneline --patch-with-stat"
-			;;
-		show,--*|branch,--*)
-			;;
-		branch,*)
-			if [ $cword -eq 3 ]; then
-				__git_complete_refs
-			else
-				__gitcomp_nl "$(__git stash list \
-						| sed -n -e 's/:.*//p')"
-			fi
-			;;
-		show,*|apply,*|drop,*|pop,*)
+	case "$subcommand,$cur" in
+	,--*)
+		__gitcomp_builtin stash_save
+		;;
+	,sa*)
+		__git_init_builtin_opts stash_save
+		if [ -z "$(__git_find_on_cmdline "$__gitcomp_builtin_stash_save")" ]; then
+			__gitcomp "save"
+		fi
+		;;
+	,*)
+		__git_init_builtin_opts stash_save
+		if [ -z "$(__git_find_on_cmdline "$__gitcomp_builtin_stash_save")" ]; then
+			__gitcomp "$subcommands"
+		fi
+		;;
+	*,--*)
+		__gitcomp_builtin stash_$subcommand
+		;;
+	branch,*)
+		if [ $cword -eq 3 ]; then
+			__git_complete_refs
+		else
 			__gitcomp_nl "$(__git stash list \
 					| sed -n -e 's/:.*//p')"
-			;;
-		*)
-			;;
-		esac
-	fi
+		fi
+		;;
+	show,*|apply,*|drop,*|pop,*)
+		__gitcomp_nl "$(__git stash list \
+				| sed -n -e 's/:.*//p')"
+		;;
+	esac
 }
 
 _git_submodule ()
