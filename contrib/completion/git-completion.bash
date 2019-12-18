@@ -1363,16 +1363,16 @@ _git_branch ()
 
 _git_bundle ()
 {
-	local subcommands="create list-heads verify unbundle"
-	local subcommand subcommand_idx
+	local subcommands subcommand subcommand_idx
 
+	__git_get_builtin_subcommands bundle
 	subcommand="$(__git_find_on_cmdline --show-idx "$subcommands")"
 	subcommand_idx="${subcommand% *}"
 	subcommand="${subcommand#* }"
 
 	case "$subcommand,$cur" in
 	,*)
-		__gitcomp "$subcommands"
+		__gitcomp_builtin bundle
 		;;
 	*,--*)
 		__gitcomp_builtin bundle_"$subcommand"
