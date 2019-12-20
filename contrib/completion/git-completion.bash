@@ -1338,20 +1338,58 @@ _git_branch ()
 
 _git_bundle ()
 {
-	local cmd="${words[2]}"
-	case "$cword" in
-	2)
-		__gitcomp "create list-heads verify unbundle"
+	local subcommands="create list-heads verify unbundle"
+	local subcommand subcommand_idx
+
+	subcommand="$(__git_find_on_cmdline --show-idx "$subcommands")"
+	subcommand_idx="${subcommand% *}"
+	subcommand="${subcommand#* }"
+
+	case "$subcommand,$cur" in
+	,*)
+		__gitcomp "$subcommands"
 		;;
-	3)
-		# looking for a file
+	*,--*)
+		__gitcomp_builtin bundle_"$subcommand"
 		;;
-	*)
-		case "$cmd" in
-			create)
+	create,*)
+		# usage: git bundle create [<options>] <file> <git-rev-list args>
+		# Here we are not completing an --option, it's either the
+		# filename or a ref/rev range.
+		# Let's see if we already have a filename.
+		local i
+		for ((i=subcommand_idx+1; i < $cword; i++)); do
+			case "${words[i]}" in
+			-*)	# -o|--option, keep looking.
+				;;
+			*)	# Found a word that is not an --option:
+				# that must be the filename,
+				# so complete refs and rev ranges.
 				__git_complete_revlist
-			;;
-		esac
+				return
+				;;
+			esac
+		done
+		# No filename on the command line yet, so let Bash fall back
+		# to filename completion.
+		;;
+	list-heads,*|unbundle,*)
+		# usage: git bundle (list-heads|unbundle) <file> [<refname>...]
+		if [ $cword = $((subcommand_idx+1)) ]; then
+			# Right after the subcommand, fall back to Bash
+			# filename completion.
+			:
+		else
+			# List refs from the given bundle
+			local file="${words[subcommand_idx+1]}" hash ref
+			__gitcomp_nl "$(__git bundle list-heads "$file" |
+				while read -r hash ref; do
+					echo "$ref"
+				done)"
+		fi
+		;;
+	*,*)
+		# Looking for a file, fall back to Bash filename completion.
 		;;
 	esac
 }
