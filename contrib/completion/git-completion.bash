@@ -1319,6 +1319,18 @@ _git_branch ()
 		((c++))
 	done
 
+	case "$prev" in
+	--show-description)
+		__gitcomp_nl "$(__git config --name-only --get-regexp \
+					'^branch\..*\.description$' |
+			while read -r b; do
+				b=${b#branch.}
+				b=${b%.description}
+				echo "$b"
+			done)"
+			return
+		;;
+	esac
 	case "$cur" in
 	--set-upstream-to=*)
 		__git_complete_refs --cur="${cur##--set-upstream-to=}"
