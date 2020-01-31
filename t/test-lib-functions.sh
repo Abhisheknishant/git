@@ -775,7 +775,9 @@ test_line_count () {
 	if test $# != 3
 	then
 		BUG "not 3 parameters to test_line_count"
-	elif ! test $(wc -l <"$3") "$1" "$2"
+	fi
+	test_path_is_file "$3" &&
+	if ! test $(wc -l <"$3") "$1" "$2"
 	then
 		echo "test_line_count: line count for $3 !$1 $2"
 		cat "$3"
