@@ -12,4 +12,4 @@ esac
 
 make
 cd t
-./t6022-merge-rename.sh --stress -r 1,12
+./t9999-test.sh --stress
