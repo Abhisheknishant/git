@@ -245,7 +245,7 @@ test_expect_success 'merge of identical changes in a renamed file' '
 
 	test-tool chmtime =31337 B &&
 	test-tool chmtime --get B >old-mtime &&
-	GIT_MERGE_VERBOSITY=3 git merge change >out &&
+	GIT_MERGE_VERBOSITY=3 git merge change &&
 
 	test-tool chmtime --get B >new-mtime &&
 	test_cmp old-mtime new-mtime &&
@@ -255,7 +255,7 @@ test_expect_success 'merge of identical changes in a renamed file' '
 
 	test-tool chmtime =-1 M &&
 	test-tool chmtime --get M >old-mtime &&
-	GIT_MERGE_VERBOSITY=3 git merge change+rename >out &&
+	GIT_MERGE_VERBOSITY=3 git merge change+rename &&
 
 	test-tool chmtime --get B >new-mtime &&
 	test $(cat old-mtime) -lt $(cat new-mtime)
