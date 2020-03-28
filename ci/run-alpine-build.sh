@@ -7,6 +7,7 @@
 #
 
 set -ex
+set
 
 useradd () {
 	adduser -D "$@"
@@ -21,6 +22,7 @@ apk add --update autoconf build-base curl-dev openssl-dev expat-dev \
 # Build and test
 su -m -l $CI_USER -c '
 	set -ex
+	set
 	cd /usr/src/git
 	test -n "$cache_dir" && ln -s "$cache_dir/.prove" t/.prove
 	autoconf

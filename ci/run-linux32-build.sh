@@ -7,6 +7,7 @@
 #
 
 set -ex
+set
 
 . "${0%/*}/lib-docker.sh"
 
@@ -20,6 +21,7 @@ linux32 --32bit i386 sh -c '
 # Build and test
 linux32 --32bit i386 su -m -l $CI_USER -c '
 	set -ex
+	set
 	cd /usr/src/git
 	test -n "$cache_dir" && ln -s "$cache_dir/.prove" t/.prove
 	make
