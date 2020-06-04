@@ -3,7 +3,9 @@ language: c
 cache:
   directories:
     - $HOME/travis-cache
-
+arch:
+    - amd64
+    - arm64
 os:
   - linux
   - osx
@@ -39,6 +41,38 @@ matrix:
       script: ci/run-static-analysis.sh
       after_failure:
     - env: jobname=Documentation
+      os: linux
+      compiler:
+      script: ci/test-documentation.sh
+      after_failure:
+    - env: jobname=GIT_TEST_GETTEXT_POISON
+      arch: arm64
+      os: linux
+      compiler:
+      addons:
+      before_install:
+    - env: jobname=linux-gcc-4.8
+      arch: arm64
+      os: linux
+      dist: trusty
+      compiler:
+    - env: jobname=Linux32
+      os: linux
+      arch: arm64
+      compiler:
+      addons:
+      services:
+        - docker
+      before_install:
+      script: ci/run-linux32-docker.sh
+    - env: jobname=StaticAnalysis
+      arch: arm64
+      os: linux
+      compiler:
+      script: ci/run-static-analysis.sh
+      after_failure:
+    - env: jobname=Documentation
+      arch: arm64
       os: linux
       compiler:
       script: ci/test-documentation.sh
